@@ -24,9 +24,9 @@ Source/
 ├── RimMindPersonalityMod.cs        Mod 入口：注册 Harmony、ContextProvider、SettingsTab、ModCooldown
 ├── Personality/
 │   ├── PersonalityThoughtMapper.cs  核心：AI 响应 → Thought 映射 + 塑造投票注册
-│   ├── PersonalityContextBuilder.cs 构建 AI 请求的 User Prompt（排除 personality_state）
+│   ├── PersonalityContextBuilder.cs 构建 AI 请求的 User Prompt（排除 personality_state，传递 enableShapingVote）
 │   ├── PersonalityResultDto.cs      AI 响应 JSON DTO（无 RimWorld 依赖）
-│   ├── EvaluationInstructionHelper.cs 评估指令构建（Poisson 抽样 + JSON 格式模板）
+│   ├── EvaluationInstructionHelper.cs 评估指令构建（Poisson 抽样 + JSON 格式模板 + DiversityHint + PromptSanitizer）
 │   ├── Thought_AIPersonality.cs     自定义 Thought 类型（重写 Label/Description/MoodOffset/DurationTicks）
 │   └── MoodOffsetCalculator.cs     强度→心情偏移查表（无 RimWorld 依赖）
 ├── Settings/
@@ -35,8 +35,7 @@ Source/
 │   ├── PersonalityProfile.cs        人格档案 + AIPersonalityWorldComponent
 │   └── ShapingRecord.cs             玩家塑造记录
 ├── Comps/
-│   ├── CompAIPersonality.cs         ThingComp：评估触发 + 事件监听 + 每日抖动 + TriggerEventType 枚举
-│   └── CompProperties_AIPersonality.cs
+│   └── CompAIPersonality.cs         ThingComp + CompProperties + TriggerEventType 枚举
 ├── UI/
 │   ├── BioTabPersonalityPatch.cs    Transpiler 注入"人格"按钮到 Bio 页
 │   └── Dialog_PersonalityProfile.cs 人格档案编辑窗口
@@ -71,14 +70,14 @@ private const int EventCooldownTicks = 1200;   // 0.02 天事件冷却
 
 // 状态字段
 private bool   _hasPendingRequest;             // 防止重复请求
-private int    _lastEventTick;                 // 上次事件触发 tick
+private int    _lastEventTick = -EventCooldownTicks; // 上次事件触发 tick
 private string? _pendingEventContext;           // 待处理事件上下文
 private int    _dailyJitter = -1;              // 基于 thingIDNumber 的确定性抖动
 
 // 核心方法
 override void CompTick()     // 检测：每日定时（含抖动，受 enableDailyEval 控制）或 事件触发
 void TriggerEvent(string context, TriggerEventType eventType = TriggerEventType.Incident)
-                             // 外部 Patch 调用，根据 eventType 检查对应触发开关
+                             // 外部 Patch 调用，先检查 enablePersonality，再根据 eventType 检查对应触发开关
 bool IsEligible()            // 自由非奴隶殖民者、未死亡、在地图上、有 mood
 
 // System Prompt 构建
@@ -102,7 +101,7 @@ static string BuildSystemPrompt()  // 使用 StructuredPromptBuilder.FromKeyPref
 | `Incident` | `enableIncidentTrigger` | 重大事件触发（默认值） |
 | `Death` | `enableDeathTrigger` | 亲近者死亡触发 |
 
-**AIRequest 参数**：`MaxTokens=300, Temperature=0.8f, ModId="Personality"`
+**AIRequest 参数**：`MaxTokens=300, Temperature=0.8f, ModId="Personality", Priority=Low`
 
 ### PersonalityThoughtMapper
 
@@ -111,14 +110,15 @@ static string BuildSystemPrompt()  // 使用 StructuredPromptBuilder.FromKeyPref
 ```csharp
 static void Apply(AIResponse response, Pawn pawn)
 // 1. 检查 response.Success
-// 2. JsonConvert.DeserializeObject<PersonalityResultDto>(response.Content)
+// 2. JsonConvert.DeserializeObject<PersonalityResultDto>(response.Content)（try-catch，失败时 log 并 return）
 // 3. 写入 narrative → PersonalityProfile（更新 lastNarrativeUpdateTick）
 // 4. RemoveAllAIPersonalityThoughts（清除旧 Thought）
 // 5. 遍历 result.thoughts，创建 Thought_AIPersonality（最多 SlotDefNames.Length 个）
 // 6. 若 enableShapingVote，为每个 Thought 注册 RimMindAPI.RegisterPendingRequest
+//    选项：强化/抑制/忽略，选择"忽略"时不写入 ShapingRecord
 // 7. 若 showNotifications，发 Messages.Message
 
-static int CalcDurationTicks(ThoughtEntryDto entry, AIPersonalitySettings? settings)
+private static int CalcDurationTicks(ThoughtEntryDto entry, AIPersonalitySettings? settings)
 // AIDecides 模式：Math.Clamp(entry.duration_hours.Value, 1, 24) * 2500
 // Fixed 模式：Math.Max(1, (int)(settings.thoughtDurationHours * 2500))
 // settings 为 null 时兜底返回 2500（1 小时）
@@ -154,6 +154,16 @@ public class Thought_AIPersonality : Thought_Memory
 ```
 
 **序列化 key 注意**：`aiDescription` 的存档 key 是 `"aiDesc"` 而非 `"aiDescription"`。
+
+### PersonalityContextBuilder
+
+```csharp
+static string BuildEvaluationPrompt(Pawn pawn, string? eventContext = null, int targetCount = 2)
+// 1. RimMindAPI.BuildFullPawnPrompt(exclude: ["personality_state"])
+// 2. 从 Settings 读取 durationMode → aiDecidesDuration
+// 3. 从 Settings 读取 enableShapingVote
+// 4. 调用 EvaluationInstructionHelper.Append(basePrompt, eventContext, targetCount, aiDecidesDuration, enableShapingVote)
+```
 
 ### MoodOffsetCalculator
 
@@ -198,18 +208,19 @@ public class PersonalityProfile : IExposable
     public string workTendencies = string.Empty;    // 工作倾向
     public string socialTendencies = string.Empty;  // 社交倾向
 
-    // AI 生成（只读）
-    public string aiNarrative = string.Empty;       // AI 叙事文本
-    public bool rimTalkSynced;                       // RimTalk 同步标记
-    public int lastNarrativeUpdateTick;
+    // AI 生成（玩家可查看/覆盖）
+    public string aiNarrative = string.Empty;       // AI 叙事文本（每日更新）
+    // 元数据
+    public bool rimTalkSynced;                       // RimTalk 同步标记（预留）
+    public int lastNarrativeUpdateTick;              // 上次叙事更新的 tick
 
-    // 塑造历史
+    // 人格塑造投票
     public List<ShapingRecord> playerShapingHistory = new List<ShapingRecord>();
 
     // 方法
     bool IsEmpty { get; }  // description、workTendencies、aiNarrative 均 NullOrEmpty 时为 true
                            // 注意：不检查 socialTendencies
-    void AddShapingRecord(ShapingRecord record, int maxCount);  // 超出 maxCount 时移除最旧
+    void AddShapingRecord(ShapingRecord record, int maxCount);  // 超出 maxCount（且 maxCount>0）时移除最旧
     void ExposeData();
 }
 ```
@@ -225,6 +236,7 @@ public class AIPersonalityWorldComponent : WorldComponent
     bool TryGet(Pawn pawn, out PersonalityProfile? profile);
     void Remove(Pawn pawn);
     override void ExposeData();                    // Scribe_Collections.Look(_profiles, LookMode.Value, LookMode.Deep)
+    // playerShapingHistory 使用 Scribe_Collections.Look(ref list, key, LookMode.Deep)
 }
 ```
 
@@ -234,7 +246,7 @@ public class AIPersonalityWorldComponent : WorldComponent
 public class ShapingRecord : IExposable
 {
     public string label = string.Empty;   // Thought 标签（注意：不是 thoughtLabel）
-    public string action = string.Empty;  // "reinforce" / "suppress" / "ignored"
+    public string action = string.Empty;  // "reinforce" / "suppress"（"ignored" 不写入记录）
     public int tick;                      // 时间戳
 }
 ```
@@ -259,19 +271,37 @@ public class ShapingRecord : IExposable
 
 ```
 {RimMindAPI.BuildFullPawnPrompt(pawn, excludeProviders: ["personality_state"])}
-{EvaluationInstructionHelper.Append(basePrompt, eventContext, targetCount, aiDecidesDuration)}
+{EvaluationInstructionHelper.Append(basePrompt, eventContext, targetCount, aiDecidesDuration, enableShapingVote)}
 ```
+
+`PersonalityContextBuilder.BuildEvaluationPrompt` 从 `RimMindPersonalityMod.Settings` 读取 `durationMode` 和 `enableShapingVote`，传递给 `EvaluationInstructionHelper.Append`。
 
 `EvaluationInstructionHelper.Append` 追加：
 - 触发原因行（`[触发原因] {eventContext}`），仅 eventContext 非空时
 - 评估指令（"恰好生成 N 个 thought"）
+- 若 `enableShapingVote` 为 true，追加多样化提示（DiversityHint），避免重复生成同类 Thought
 - JSON 格式模板（AIDecides 模式含 duration_hours，Fixed 模式不含）
+- 指令部分经 `PromptSanitizer.Sanitize()` 清洗
+
+### EvaluationInstructionHelper
+
+```csharp
+static int SampleThoughtCount(float mu)
+// mu <= 0 时固定返回 1
+// 否则标准 Poisson 采样，结果 clamp 到 [1, 3]
+
+static string Append(string basePrompt, string? eventContext = null, int targetCount = 2,
+                     bool aiDecidesDuration = false, bool enableShapingVote = false)
+// 1. 追加触发原因行（仅 eventContext 非空时）
+// 2. 追加评估指令（"恰好生成 N 个 thought"）
+// 3. 若 enableShapingVote，追加 DiversityHint
+// 4. 追加 JSON 格式模板（AIDecides 含 duration_hours，Fixed 不含）
+// 5. 指令部分经 PromptSanitizer.Sanitize() 清洗
+```
 
 ### Poisson 抽样
 
-`EvaluationInstructionHelper.SampleThoughtCount(float mu)`：
-- mu <= 0 时固定返回 1
-- 否则标准 Poisson 采样，结果 clamp 到 [1, 3]
+`EvaluationInstructionHelper.SampleThoughtCount(float mu)` 详见上方 API 签名。
 
 ## 玩家塑造系统
 
@@ -289,7 +319,7 @@ Personality 向 Core 注册三个 Provider（在 `RimMindPersonalityMod.Register
 |----------|------|------|
 | personality_profile | 人格档案（描述+工作倾向+社交倾向+AI叙事） | 含翻译 key 格式化 |
 | personality_state | 当前活跃的人格/对话 Thought 列表 | 检查 defName 为 `AIPersonality_State`、`AIPersonality_BehaviorFlag`、`AIDialogue_Thought` |
-| personality_shaping | 玩家塑造历史记录 | 取最近 maxCount 条，格式为中文标签 |
+| personality_shaping | 玩家塑造历史记录 | 取最近 maxCount 条（Settings 为 null 时兜底 50），格式为翻译后标签 |
 
 `BuildFullPawnPrompt` 时排除 `personality_state`（避免评估时看到自己的当前状态）。
 
@@ -314,10 +344,10 @@ CompAIPersonality.CompTick()
     │       ▼
     ├── PersonalityContextBuilder.BuildEvaluationPrompt(pawn, eventCtx, targetCount)
     │       ├── RimMindAPI.BuildFullPawnPrompt(exclude: ["personality_state"])
-    │       └── EvaluationInstructionHelper.Append(basePrompt, eventCtx, targetCount, aiDecidesDuration)
+    │       └── EvaluationInstructionHelper.Append(basePrompt, eventCtx, targetCount, aiDecidesDuration, enableShapingVote)
     │       ▼
     ├── RimMindAPI.RequestAsync(request, callback)
-    │       request: { SystemPrompt, UserPrompt, MaxTokens=300, Temperature=0.8, ModId="Personality" }
+    │       request: { SystemPrompt, UserPrompt, MaxTokens=300, Temperature=0.8, ModId="Personality", Priority=Low }
     │       ▼
     ├── AI 生成响应
     │       ▼
@@ -463,7 +493,7 @@ Scribe_Values.Look(ref customDurationTicks, "customDurationTicks", -1);
 
 Dev 菜单（需开启开发模式）→ RimMind Personality：
 
-- **Force Evaluate Selected Pawn** — 强制对选中 Pawn 发起 AI 评估（使用 `RequestImmediate`）
+- **Force Evaluate Selected Pawn** — 强制对选中 Pawn 发起 AI 评估（使用 `RequestImmediate`，ExpireAtTicks=36000）
 - **Show Personality State (selected)** — 输出人格状态到日志（含 Profile、Thought 详情）
 - **Clear Personality Thoughts (selected)** — 清除选中 Pawn 的人格 Thought
 - **List Personality-Enabled Pawns** — 列出启用人格系统的殖民者
@@ -483,3 +513,5 @@ Dev 菜单（需开启开发模式）→ RimMind Personality：
 10. **序列化 key 不一致**：`aiDescription` 字段的存档 key 是 `"aiDesc"`，修改时需注意向后兼容
 11. **触发开关生效机制**：`enableDailyEval` 在 CompTick 中检查；事件触发开关通过 `TriggerEventType` 枚举在 TriggerEvent 中检查，外部 Patch 需传入正确的 eventType
 12. **TriggerEvent 默认值**：`eventType` 默认为 `TriggerEventType.Incident`，未传入 eventType 的旧调用默认检查 `enableIncidentTrigger`
+13. **DiversityHint**：`enableShapingVote` 为 true 时，`EvaluationInstructionHelper.Append` 在评估指令后追加多样化提示翻译 key `RimMind.Personality.Prompt.DiversityHint`，避免 AI 重复生成同类 Thought
+14. **PromptSanitizer**：`EvaluationInstructionHelper.Append` 对指令部分调用 `PromptSanitizer.Sanitize()` 清洗，基础 prompt 不清洗
