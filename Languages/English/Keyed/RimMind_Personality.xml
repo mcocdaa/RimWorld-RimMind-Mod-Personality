@@ -8,8 +8,6 @@
     <RimMind.Personality.Settings.ShowNotifications.Desc>Display a notification on screen when AI generates a new psychological state.</RimMind.Personality.Settings.ShowNotifications.Desc>
     <RimMind.Personality.Settings.ShowLabelPrefix>Show [RimMind] Prefix</RimMind.Personality.Settings.ShowLabelPrefix>
     <RimMind.Personality.Settings.ShowLabelPrefix.Desc>Display a "RimMind" prefix before psychological state labels to distinguish AI-generated Thoughts from vanilla ones.</RimMind.Personality.Settings.ShowLabelPrefix.Desc>
-    <RimMind.Personality.Settings.ThoughtCountLabel>Thought count per evaluation (μ = {0}, Poisson sampling, result 1~3)</RimMind.Personality.Settings.ThoughtCountLabel>
-    <RimMind.Personality.Settings.ThoughtCountLabel.Desc>Uses Poisson distribution sampling to determine the number of Thoughts generated per evaluation. Higher μ produces more Thoughts.</RimMind.Personality.Settings.ThoughtCountLabel.Desc>
     <RimMind.Personality.Settings.ThoughtDuration>Thought duration:</RimMind.Personality.Settings.ThoughtDuration>
     <RimMind.Personality.Settings.ThoughtDuration.Desc>Set the duration mode for AI-generated psychological states (Thoughts).</RimMind.Personality.Settings.ThoughtDuration.Desc>
     <RimMind.Personality.Settings.AIDecidesDuration>Let AI decide each Thought's duration</RimMind.Personality.Settings.AIDecidesDuration>
@@ -31,8 +29,8 @@
     <RimMind.Personality.Settings.Section.Display>Display</RimMind.Personality.Settings.Section.Display>
     <RimMind.Personality.Settings.Section.Thought>Thought Settings</RimMind.Personality.Settings.Section.Thought>
     <RimMind.Personality.Settings.Section.Request>Request Settings</RimMind.Personality.Settings.Section.Request>
-    <RimMind.Personality.Settings.RequestExpire>Request expiry: {0} game days</RimMind.Personality.Settings.RequestExpire>
-    <RimMind.Personality.Settings.RequestExpire.Desc>Personality evaluation requests that don't receive a response within this time are automatically cancelled.</RimMind.Personality.Settings.RequestExpire.Desc>
+    <RimMind.Personality.Settings.RequestExpire>Shaping vote expiry: {0} game days</RimMind.Personality.Settings.RequestExpire>
+    <RimMind.Personality.Settings.RequestExpire.Desc>Shaping vote requests that are not responded to within this time are automatically cancelled.</RimMind.Personality.Settings.RequestExpire.Desc>
     <RimMind.Personality.Settings.ShapingHistoryMax>Shaping history limit: {0}</RimMind.Personality.Settings.ShapingHistoryMax>
     <RimMind.Personality.Settings.ShapingHistoryMax.Desc>Keep the last N personality shaping vote records for AI evaluation reference.</RimMind.Personality.Settings.ShapingHistoryMax.Desc>
 
@@ -62,27 +60,6 @@
     <RimMind.Personality.Context.RecentState>Recent psychological state: {0}</RimMind.Personality.Context.RecentState>
     <RimMind.Personality.Context.StateHeader>[Current Personality/Dialogue State]</RimMind.Personality.Context.StateHeader>
     <RimMind.Personality.Context.StateEntry>- {0} ({1} game hours remaining)</RimMind.Personality.Context.StateEntry>
-
-    <!-- EvaluationInstructionHelper.cs -->
-    <RimMind.Personality.Prompt.TriggerReason>[Trigger Reason] {0}</RimMind.Personality.Prompt.TriggerReason>
-    <RimMind.Personality.Prompt.EvalInstruction>Based on the above information, select the applicable personality states for today, generating exactly {0} thoughts.</RimMind.Personality.Prompt.EvalInstruction>
-    <RimMind.Personality.Prompt.DiversityHint>Diversity hint: Try to ensure diverse personality traits; avoid repeatedly generating the same type of psychological state. If similar states were recently generated, try creating Thoughts from different dimensions.</RimMind.Personality.Prompt.DiversityHint>
-    <RimMind.Personality.Prompt.JsonFormatDirect>Output the following JSON format directly, without any other text:</RimMind.Personality.Prompt.JsonFormatDirect>
-    <RimMind.Personality.Prompt.LabelHint>short label (8 chars max)</RimMind.Personality.Prompt.LabelHint>
-    <RimMind.Personality.Prompt.DescHint>specific description (20 chars max, third person)</RimMind.Personality.Prompt.DescHint>
-    <RimMind.Personality.Prompt.NarrativeHint>within 50 chars, describe the colonist's recent psychological changes</RimMind.Personality.Prompt.NarrativeHint>
-    <RimMind.Personality.Prompt.JsonTemplateNoDuration>{{"thoughts":[{{"type":"state","label":"{0}","description":"{1}","intensity":-1}}],"narrative":"{2}"}}</RimMind.Personality.Prompt.JsonTemplateNoDuration>
-    <RimMind.Personality.Prompt.DurationHint>duration_hours guidelines: mild emotions (intensity ±1) = 1-4 hours; moderate emotions (intensity ±2) = 5-12 hours; strong/deep psychological states (intensity ±3) = 13-24 hours.</RimMind.Personality.Prompt.DurationHint>
-    <RimMind.Personality.Prompt.JsonTemplateWithDuration>{{"thoughts":[{{"type":"state","label":"{0}","description":"{1}","intensity":-1,"duration_hours":8}}],"narrative":"{2}"}}</RimMind.Personality.Prompt.JsonTemplateWithDuration>
-
-    <!-- Five-section System Prompt -->
-    <RimMind.Personality.Prompt.System.Role>[Role] You are a RimWorld colonist personality evaluator, responsible for generating psychological states based on game conditions.</RimMind.Personality.Prompt.System.Role>
-    <RimMind.Personality.Prompt.System.Goal>[Goal] Based on the colonist's current state, personality profile, and trigger reason, generate Thoughts and narrative that reflect the character's psychology.</RimMind.Personality.Prompt.System.Goal>
-    <RimMind.Personality.Prompt.System.Process>[Process]\n1. Read the colonist's full state (mood, health, skills, traits, backstory)\n2. Reference personality profile and player shaping history\n3. If there is a trigger reason, prioritize reflecting that event's psychological impact\n4. Generate Thoughts (type + label + description + intensity)\n5. Generate narrative (describing recent psychological changes)</RimMind.Personality.Prompt.System.Process>
-    <RimMind.Personality.Prompt.System.Constraint>[Constraint]\n- label ≤8 chars, description ≤20 chars (third person)\n- intensity range -3~+3\n- Thoughts should reflect the colonist's real state, do not fabricate\n- narrative ≤50 chars\n- Do not break the fourth wall</RimMind.Personality.Prompt.System.Constraint>
-    <RimMind.Personality.Prompt.System.Example>[Example]\nInput: Mood 35%, just severely injured in combat, trait: Tough\nOutput: {{"thoughts":[{{"type":"state","label":"Enduring pain","description":"Severely wounded but resolute","intensity":2}}],"narrative":"Despite the agony, they grit their teeth and refuse to let comrades worry."}}</RimMind.Personality.Prompt.System.Example>
-    <RimMind.Personality.Prompt.System.Output>[Output] Only return the following JSON format, nothing else:\n{{"thoughts":[{{"type":"state","label":"...","description":"...","intensity":0}}],"narrative":"..."}}</RimMind.Personality.Prompt.System.Output>
-    <RimMind.Personality.Prompt.System.Fallback>[Fallback] If unable to evaluate, return {{"thoughts":[],"narrative":"Normal state, no significant psychological fluctuation."}}.</RimMind.Personality.Prompt.System.Fallback>
 
     <!-- Shaping Vote -->
     <RimMind.Personality.Settings.EnableShapingVote>Enable Personality Shaping Vote</RimMind.Personality.Settings.EnableShapingVote>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RimMind.Core.Agent;
 using RimWorld.Planet;
 using Verse;
 
@@ -26,16 +27,20 @@ namespace RimMind.Personality.Data
         // ── 人格塑造投票 ──────────────────────────────────────────────────
         public List<ShapingRecord> playerShapingHistory = new List<ShapingRecord>();
 
+        public AgentIdentity? agentIdentity;
+
         public void AddShapingRecord(ShapingRecord record, int maxCount)
         {
             playerShapingHistory.Add(record);
-            if (playerShapingHistory.Count > maxCount && maxCount > 0)
-                playerShapingHistory.RemoveRange(0, playerShapingHistory.Count - maxCount);
+            int effectiveMax = Math.Max(maxCount, 1);
+            if (playerShapingHistory.Count > effectiveMax)
+                playerShapingHistory.RemoveRange(0, playerShapingHistory.Count - effectiveMax);
         }
 
         public bool IsEmpty =>
             description.NullOrEmpty() &&
             workTendencies.NullOrEmpty() &&
+            socialTendencies.NullOrEmpty() &&
             aiNarrative.NullOrEmpty();
 
         public void ExposeData()
@@ -51,6 +56,8 @@ namespace RimMind.Personality.Data
             Scribe_Values.Look(ref lastNarrativeUpdateTick,  "lastNarrativeUpdateTick");
             Scribe_Collections.Look(ref playerShapingHistory, "playerShapingHistory", LookMode.Deep);
             playerShapingHistory ??= new List<ShapingRecord>();
+            Scribe_Deep.Look(ref agentIdentity, "agentIdentity");
+            agentIdentity ??= new AgentIdentity();
         }
     }
 

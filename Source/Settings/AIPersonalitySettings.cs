@@ -16,13 +16,6 @@ namespace RimMind.Personality
         public bool  enableIncidentTrigger = true;
         public bool  enableDeathTrigger   = true;
 
-        /// <summary>
-        /// Poisson 抽样参数 μ：控制每次评估生成的 Thought 数量期望值。
-        /// 0 → 固定 1 个；1.5 → 平均约 1.5 个；结果始终夹在 [1, 3]。
-        /// </summary>
-        public float thoughtCountMu = 1.0f;
-
-        /// <summary>Thought 持续时间（游戏小时，0~24）。</summary>
         public float thoughtDurationHours = 24f;
 
         /// <summary>Fixed = 使用 thoughtDurationHours；AIDecides = 由 AI 在 JSON 中决定 duration_hours。</summary>
@@ -46,7 +39,6 @@ namespace RimMind.Personality
             Scribe_Values.Look(ref enableSkillTrigger,    "enableSkillTrigger",    true);
             Scribe_Values.Look(ref enableIncidentTrigger, "enableIncidentTrigger", true);
             Scribe_Values.Look(ref enableDeathTrigger,    "enableDeathTrigger",    true);
-            Scribe_Values.Look(ref thoughtCountMu,        "thoughtCountMu",        1.0f);
             Scribe_Values.Look(ref thoughtDurationHours,  "thoughtDurationHours",  24f);
             Scribe_Values.Look(ref durationMode,          "durationMode",          ThoughtDurationMode.AIDecides);
             Scribe_Values.Look(ref showLabelPrefix,       "showLabelPrefix",       true);

@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using RimMind.Core;
 using RimMind.Core.Client;
+using RimMind.Core.Context;
 using RimMind.Core.UI;
 using RimMind.Personality.Data;
 using RimWorld;
@@ -10,6 +12,15 @@ namespace RimMind.Personality
 {
     public static class PersonalityThoughtMapper
     {
+        public const string EvaluationSchema = SchemaRegistry.PersonalityOutput;
+
+        public static float GetPersonalityBudget()
+        {
+            var ctx = RimMindCoreMod.Settings?.Context;
+            if (ctx == null) return 0.6f;
+            return ctx.ContextBudget;
+        }
+
         private static readonly string[] SlotDefNames = new[]
         {
             "AIPersonality_Slot_0",
@@ -53,10 +64,27 @@ namespace RimMind.Personality
                 }
             }
 
+            if (result.identity != null)
+            {
+                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                if (profile != null)
+                {
+                    if (profile.agentIdentity == null)
+                        profile.agentIdentity = new RimMind.Core.Agent.AgentIdentity();
+                    if (result.identity.motivations != null)
+                        profile.agentIdentity.Motivations = new List<string>(result.identity.motivations);
+                    if (result.identity.traits != null)
+                        profile.agentIdentity.PersonalityTraits = new List<string>(result.identity.traits);
+                    if (result.identity.core_values != null)
+                        profile.agentIdentity.CoreValues = new List<string>(result.identity.core_values);
+                }
+            }
+
             RemoveAllAIPersonalityThoughts(pawn);
 
             var settings = RimMindPersonalityMod.Settings;
             if (settings == null) return;
+            bool showNotifications = settings.showNotifications;
             int slotIndex = 0;
             foreach (var entry in result.thoughts)
             {
@@ -121,7 +149,7 @@ namespace RimMind.Personality
                 slotIndex++;
             }
 
-            if (settings!.showNotifications && result.thoughts.Length > 0)
+            if (showNotifications && result.thoughts.Length > 0)
             {
                 Messages.Message(
                     "RimMind.Personality.UI.PersonalityUpdated".Translate(pawn.Name.ToStringShort),

@@ -1,11 +1,9 @@
 using LudeonTK;
 using RimMind.Core;
-using RimMind.Core.Client;
-using RimMind.Core.Prompt;
+using RimMind.Core.Context;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
 using RimWorld;
-using System;
 using System.Text;
 using Verse;
 
@@ -39,28 +37,20 @@ namespace RimMind.Personality.Debug
 
             Log.Message($"[RimMind-Personality] Sending evaluation request for {pawn.Name.ToStringShort}...");
 
-            int thoughtCount = EvaluationInstructionHelper.SampleThoughtCount(RimMindPersonalityMod.Settings.thoughtCountMu);
-            var request = new AIRequest
+            var ctxRequest = new ContextRequest
             {
-                SystemPrompt = new StructuredPromptBuilder()
-                    .RoleFromKey("RimMind.Personality.Prompt.System.Role")
-                    .GoalFromKey("RimMind.Personality.Prompt.System.Goal")
-                    .ProcessFromKey("RimMind.Personality.Prompt.System.Process")
-                    .ConstraintFromKey("RimMind.Personality.Prompt.System.Constraint")
-                    .ExampleFromKey("RimMind.Personality.Prompt.System.Example")
-                    .OutputFromKey("RimMind.Personality.Prompt.System.Output")
-                    .FallbackFromKey("RimMind.Personality.Prompt.System.Fallback")
-                    .Build(),
-                UserPrompt   = PersonalityContextBuilder.BuildEvaluationPrompt(pawn, "[Debug] Force evaluate", thoughtCount),
-                MaxTokens    = 300,
-                Temperature  = 0.8f,
-                RequestId    = $"Debug_ForceEval_{pawn.ThingID}_{Find.TickManager.TicksGame}",
-                ModId        = "Personality",
-                ExpireAtTicks = Find.TickManager.TicksGame + 36000,
-                Priority = AIRequestPriority.Low,
+                NpcId       = $"NPC-{pawn.ThingID}",
+                Scenario    = ScenarioIds.Personality,
+                Budget      = PersonalityThoughtMapper.GetPersonalityBudget(),
+                CurrentQuery = "[Debug] Force evaluate",
+                ExcludeKeys = new[] { "personality_state" },
+                MaxTokens   = 300,
+                Temperature = 0.8f,
             };
 
-            RimMindAPI.RequestImmediate(request, response =>
+            var schema = PersonalityThoughtMapper.EvaluationSchema;
+
+            RimMindAPI.RequestStructured(ctxRequest, schema, response =>
             {
                 if (!response.Success)
                 {

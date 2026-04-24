@@ -19,9 +19,19 @@ namespace RimMind.Personality
             new Harmony("mcocdaa.RimMindPersonality").PatchAll();
 
             RegisterContextProviders();
+            RegisterAgentIdentityProvider();
             RimMindAPI.RegisterSettingsTab("personality", () => "RimMind.Personality.Settings.TabLabel".Translate(), DrawSettingsContent);
             RimMindAPI.RegisterModCooldown("Personality", () => 36000);
             Log.Message("[RimMind-Personality] Initialized.");
+        }
+
+        private static void RegisterAgentIdentityProvider()
+        {
+            RimMindAPI.RegisterAgentIdentityProvider(pawn =>
+            {
+                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                return profile?.agentIdentity;
+            });
         }
 
         private static void RegisterContextProviders()
@@ -53,9 +63,7 @@ namespace RimMind.Personality
                 bool any = false;
                 foreach (var t in memories)
                 {
-                    if (t.def.defName != "AIPersonality_State" &&
-                        t.def.defName != "AIPersonality_BehaviorFlag" &&
-                        t.def.defName != "AIDialogue_Thought") continue;
+                    if (!Personality.PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
 
                     string desc = (t as Thought_AIPersonality)?.aiDescription ?? t.def.label;
                     float  hours = t.DurationTicks / 2500f;
@@ -123,11 +131,6 @@ namespace RimMind.Personality
                 "RimMind.Personality.Settings.DeathTrigger.Desc".Translate());
 
             SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Thought".Translate());
-            listing.Label("RimMind.Personality.Settings.ThoughtCountLabel".Translate($"{Settings.thoughtCountMu:F1}"));
-            GUI.color = UnityEngine.Color.gray;
-            listing.Label("  " + "RimMind.Personality.Settings.ThoughtCountLabel.Desc".Translate());
-            GUI.color = UnityEngine.Color.white;
-            Settings.thoughtCountMu = listing.Slider(Settings.thoughtCountMu, 0f, 3f);
 
             listing.Label("RimMind.Personality.Settings.ThoughtDuration".Translate());
             GUI.color = UnityEngine.Color.gray;
@@ -185,7 +188,6 @@ namespace RimMind.Personality
                 Settings.enableSkillTrigger = true;
                 Settings.enableIncidentTrigger = true;
                 Settings.enableDeathTrigger = true;
-                Settings.thoughtCountMu = 1.0f;
                 Settings.thoughtDurationHours = 24f;
                 Settings.durationMode = ThoughtDurationMode.AIDecides;
                 Settings.requestExpireTicks = 30000;
