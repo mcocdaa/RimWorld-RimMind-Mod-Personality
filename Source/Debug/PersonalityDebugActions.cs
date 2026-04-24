@@ -43,9 +43,9 @@ namespace RimMind.Personality.Debug
                 Scenario = ScenarioIds.Personality,
                 Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
                 CurrentQuery = "[Debug] Force evaluate",
-                ExcludeKeys = new[] { "personality_state" },
-                MaxTokens = 300,
-                Temperature = 0.8f,
+                ExcludeKeys = new[] { PersonalityThoughtMapper.DefaultExcludeKey },
+                MaxTokens = PersonalityThoughtMapper.DefaultMaxTokens,
+                Temperature = PersonalityThoughtMapper.DefaultTemperature,
             };
 
             var schema = PersonalityThoughtMapper.EvaluationSchema;

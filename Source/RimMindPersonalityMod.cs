@@ -79,7 +79,7 @@ namespace RimMind.Personality
                 if (profile?.playerShapingHistory == null || profile.playerShapingHistory.Count == 0)
                     return null;
 
-                int maxCount = Settings?.shapingHistoryMaxCount ?? 50;
+                int maxCount = Settings?.shapingHistoryMaxCount ?? 20;
                 var recent = profile.playerShapingHistory.Skip(System.Math.Max(0, profile.playerShapingHistory.Count - maxCount)).ToList();
                 var sb = new System.Text.StringBuilder("RimMind.Personality.Context.ShapingHistoryHeader".Translate());
                 foreach (var r in recent)

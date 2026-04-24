@@ -93,7 +93,7 @@ namespace RimMind.Personality.Tests
 
             Assert.NotNull(result);
             // 原始值保留，交给 MoodOffsetCalculator.CalcMoodOffset 去 clamp
-            Assert.Equal(99, result!.thoughts[0].intensity);
+            Assert.Equal(99f, result!.thoughts[0].intensity, 0.001);
             // 经过 CalcMoodOffset 后应被 clamp 到 +10
             Assert.Equal(+10f, MoodOffsetCalculator.CalcMoodOffset(result.thoughts[0].intensity));
         }

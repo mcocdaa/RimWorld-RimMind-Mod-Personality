@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using RimMind.Core;
@@ -13,6 +14,9 @@ namespace RimMind.Personality
     public static class PersonalityThoughtMapper
     {
         public const string EvaluationSchema = SchemaRegistry.PersonalityOutput;
+        public const string DefaultExcludeKey = "personality_state";
+        public const int DefaultMaxTokens = 300;
+        public const float DefaultTemperature = 0.8f;
 
         public static float GetPersonalityBudget()
         {
@@ -86,6 +90,7 @@ namespace RimMind.Personality
             if (settings == null) return;
             bool showNotifications = settings.showNotifications;
             int slotIndex = 0;
+            result.thoughts ??= Array.Empty<ThoughtEntryDto>();
             foreach (var entry in result.thoughts)
             {
                 if (slotIndex >= SlotDefNames.Length) break;
@@ -101,7 +106,7 @@ namespace RimMind.Personality
                 var thought = (Thought_AIPersonality)ThoughtMaker.MakeThought(thoughtDef);
                 thought.aiLabel = entry.label;
                 thought.aiDescription = entry.description;
-                thought.aiIntensity = entry.intensity;
+                thought.aiIntensity = (int)entry.intensity;
                 thought.customDurationTicks = CalcDurationTicks(entry, settings);
                 pawn.needs.mood.thoughts.memories.TryGainMemory(thought);
 
@@ -166,7 +171,7 @@ namespace RimMind.Personality
                 && entry.duration_hours.HasValue
                 && entry.duration_hours.Value > 0)
             {
-                return System.Math.Clamp(entry.duration_hours.Value, 1, 24) * TicksPerHour;
+                return (int)(Math.Clamp(entry.duration_hours.Value, 1f, 24f) * TicksPerHour);
             }
             return System.Math.Max(1, (int)(settings.thoughtDurationHours * TicksPerHour));
         }

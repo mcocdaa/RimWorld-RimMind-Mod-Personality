@@ -14,8 +14,8 @@ namespace RimMind.Personality
         public string type { get; set; } = "state";
         public string label { get; set; } = string.Empty;
         public string description { get; set; } = string.Empty;
-        public int intensity { get; set; }
-        public int? duration_hours { get; set; } = null;
+        public float intensity { get; set; }
+        public float? duration_hours { get; set; } = null;
     }
 
     public class PersonalityIdentityDto
