@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using RimMind.Core;
+using RimMind.Core.Context;
 using HarmonyLib;
 using RimMind.Core.UI;
 using RimMind.Personality.Data;
@@ -94,6 +96,13 @@ namespace RimMind.Personality
                 }
                 return sb.ToString().TrimEnd();
             });
+
+            ContextKeyRegistry.Register("personality_task", ContextLayer.L0_Static, 0.95f,
+                pawn =>
+                {
+                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    return new List<ContextEntry> { new ContextEntry("RimMind.Personality.Prompt.TaskInstruction".Translate()) };
+                }, "RimMind.Personality");
         }
 
         public override string SettingsCategory() => "RimMind - Personality";

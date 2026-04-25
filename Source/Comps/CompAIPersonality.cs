@@ -77,7 +77,7 @@ namespace RimMind.Personality.Comps
             // ContextEngine + RequestStructured 路径
             var ctxRequest = new ContextRequest
             {
-                NpcId = $"NPC-{Pawn.ThingID}",
+                NpcId = $"NPC-{Pawn.thingIDNumber}",
                 Scenario = ScenarioIds.Personality,
                 Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
                 CurrentQuery = eventCtx,
