@@ -10,9 +10,9 @@ namespace RimMind.Personality
     /// </summary>
     public class Thought_AIPersonality : Thought_Memory
     {
-        public string aiLabel       = string.Empty;
+        public string aiLabel = string.Empty;
         public string aiDescription = string.Empty;
-        public int    aiIntensity;   // 原始值 -3~+3，超出范围由 MoodOffsetCalculator.CalcMoodOffset clamp
+        public int aiIntensity;   // 原始值 -3~+3，超出范围由 MoodOffsetCalculator.CalcMoodOffset clamp
 
         /// <summary>
         /// 自定义持续时长（ticks）。-1 表示使用 def 默认值。
@@ -46,10 +46,10 @@ namespace RimMind.Personality
         {
             base.ExposeData();
 #pragma warning disable CS8601
-            Scribe_Values.Look(ref aiLabel,            "aiLabel",            string.Empty);
-            Scribe_Values.Look(ref aiDescription,      "aiDesc",             string.Empty);
+            Scribe_Values.Look(ref aiLabel, "aiLabel", string.Empty);
+            Scribe_Values.Look(ref aiDescription, "aiDesc", string.Empty);
 #pragma warning restore CS8601
-            Scribe_Values.Look(ref aiIntensity,        "aiIntensity",        0);
+            Scribe_Values.Look(ref aiIntensity, "aiIntensity", 0);
             Scribe_Values.Look(ref customDurationTicks, "customDurationTicks", -1);
         }
     }

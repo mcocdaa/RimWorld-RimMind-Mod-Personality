@@ -10,18 +10,18 @@ namespace RimMind.Personality.UI
         private readonly Pawn _pawn;
         private PersonalityProfile _profile = null!;
 
-        private string _editDesc    = "";
-        private string _editWork    = "";
-        private string _editSocial  = "";
+        private string _editDesc = "";
+        private string _editWork = "";
+        private string _editSocial = "";
         private Vector2 _scrollNarrative;
 
         public Dialog_PersonalityProfile(Pawn pawn)
         {
-            _pawn  = pawn;
-            doCloseX            = true;
-            draggable           = true;
-            closeOnAccept       = false;
-            closeOnCancel       = true;
+            _pawn = pawn;
+            doCloseX = true;
+            draggable = true;
+            closeOnAccept = false;
+            closeOnCancel = true;
             absorbInputAroundWindow = false;
             preventCameraMotion = false;
         }
@@ -32,8 +32,8 @@ namespace RimMind.Personality.UI
         {
             base.PreOpen();
             _profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(_pawn) ?? new PersonalityProfile();
-            _editDesc   = _profile.description   ?? "";
-            _editWork   = _profile.workTendencies ?? "";
+            _editDesc = _profile.description ?? "";
+            _editWork = _profile.workTendencies ?? "";
             _editSocial = _profile.socialTendencies ?? "";
         }
 
@@ -81,9 +81,9 @@ namespace RimMind.Personality.UI
 
             if (Widgets.ButtonText(new Rect(inRect.x, btnY, btnW, 30f), "RimMind.Personality.UI.Save".Translate()))
             {
-                _profile.description       = _editDesc.Trim();
-                _profile.workTendencies    = _editWork.Trim();
-                _profile.socialTendencies  = _editSocial.Trim();
+                _profile.description = _editDesc.Trim();
+                _profile.workTendencies = _editWork.Trim();
+                _profile.socialTendencies = _editSocial.Trim();
                 Messages.Message("RimMind.Personality.UI.ProfileSaved".Translate(_pawn.LabelShort),
                     MessageTypeDefOf.SilentInput, historical: false);
                 Close();

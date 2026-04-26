@@ -1,7 +1,6 @@
 using LudeonTK;
 using RimMind.Core;
-using RimMind.Core.Client;
-using RimMind.Core.Prompt;
+using RimMind.Core.Context;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
 using RimWorld;
@@ -39,28 +38,20 @@ namespace RimMind.Personality.Debug
 
             Log.Message($"[RimMind-Personality] Sending evaluation request for {pawn.Name.ToStringShort}...");
 
-            int thoughtCount = EvaluationInstructionHelper.SampleThoughtCount(RimMindPersonalityMod.Settings.thoughtCountMu);
-            var request = new AIRequest
+            var ctxRequest = new ContextRequest
             {
-                SystemPrompt = new StructuredPromptBuilder()
-                    .RoleFromKey("RimMind.Personality.Prompt.System.Role")
-                    .GoalFromKey("RimMind.Personality.Prompt.System.Goal")
-                    .ProcessFromKey("RimMind.Personality.Prompt.System.Process")
-                    .ConstraintFromKey("RimMind.Personality.Prompt.System.Constraint")
-                    .ExampleFromKey("RimMind.Personality.Prompt.System.Example")
-                    .OutputFromKey("RimMind.Personality.Prompt.System.Output")
-                    .FallbackFromKey("RimMind.Personality.Prompt.System.Fallback")
-                    .Build(),
-                UserPrompt   = PersonalityContextBuilder.BuildEvaluationPrompt(pawn, "[Debug] Force evaluate", thoughtCount),
-                MaxTokens    = 300,
-                Temperature  = 0.8f,
-                RequestId    = $"Debug_ForceEval_{pawn.ThingID}_{Find.TickManager.TicksGame}",
-                ModId        = "Personality",
-                ExpireAtTicks = Find.TickManager.TicksGame + 36000,
-                Priority = AIRequestPriority.Low,
+                NpcId = $"NPC-{pawn.thingIDNumber}",
+                Scenario = ScenarioIds.Personality,
+                Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
+                CurrentQuery = "[Debug] Force evaluate",
+                ExcludeKeys = new[] { PersonalityThoughtMapper.DefaultExcludeKey },
+                MaxTokens = PersonalityThoughtMapper.DefaultMaxTokens,
+                Temperature = PersonalityThoughtMapper.DefaultTemperature,
             };
 
-            RimMindAPI.RequestImmediate(request, response =>
+            var schema = PersonalityThoughtMapper.EvaluationSchema;
+
+            RimMindAPI.RequestStructured(ctxRequest, schema, response =>
             {
                 if (!response.Success)
                 {
@@ -95,10 +86,10 @@ namespace RimMind.Personality.Debug
             if (profile != null && !profile.IsEmpty)
             {
                 sb.AppendLine("[Personality Profile]");
-                if (!profile.description.NullOrEmpty())      sb.AppendLine($"  Description: {profile.description}");
-                if (!profile.workTendencies.NullOrEmpty())   sb.AppendLine($"  Work tendencies: {profile.workTendencies}");
+                if (!profile.description.NullOrEmpty()) sb.AppendLine($"  Description: {profile.description}");
+                if (!profile.workTendencies.NullOrEmpty()) sb.AppendLine($"  Work tendencies: {profile.workTendencies}");
                 if (!profile.socialTendencies.NullOrEmpty()) sb.AppendLine($"  Social tendencies: {profile.socialTendencies}");
-                if (!profile.aiNarrative.NullOrEmpty())      sb.AppendLine($"  Recent narrative: {profile.aiNarrative}");
+                if (!profile.aiNarrative.NullOrEmpty()) sb.AppendLine($"  Recent narrative: {profile.aiNarrative}");
                 float daysSince = (Find.TickManager.TicksGame - profile.lastNarrativeUpdateTick) / 60000f;
                 sb.AppendLine($"  Last updated: {daysSince:F1} game days ago");
             }
@@ -117,7 +108,7 @@ namespace RimMind.Personality.Debug
                     if (!PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
 
                     var pt = t as Thought_AIPersonality;
-                    float mood  = MoodOffsetCalculator.CalcMoodOffset(pt?.aiIntensity ?? 0);
+                    float mood = MoodOffsetCalculator.CalcMoodOffset(pt?.aiIntensity ?? 0);
                     float hours = t.DurationTicks / 2500f;
                     sb.AppendLine($"  [{t.def.defName}] {pt?.aiLabel ?? t.def.label} " +
                                   $"(intensity={pt?.aiIntensity ?? 0}, mood={mood:+0;-0}, {hours:F1}h remaining)");
@@ -194,6 +185,62 @@ namespace RimMind.Personality.Debug
 
             AIPersonalityWorldComponent.Instance?.Remove(pawn);
             Log.Message($"[RimMind-Personality] Reset personality profile for {pawn.Name.ToStringShort}.");
+        }
+
+        [DebugAction("RimMind Personality", "Show Shaping History (selected)",
+            actionType = DebugActionType.Action)]
+        public static void ShowShapingHistory()
+        {
+            var pawn = Find.Selector.SingleSelectedThing as Pawn;
+            if (pawn == null)
+            {
+                Log.Warning("[RimMind-Personality] Please select a pawn first.");
+                return;
+            }
+
+            var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+            if (profile == null || profile.playerShapingHistory.Count == 0)
+            {
+                Log.Message($"[RimMind-Personality] {pawn.Name.ToStringShort} has no shaping history.");
+                return;
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"=== {pawn.Name.ToStringShort} Shaping History (last 20) ===");
+            int start = Math.Max(0, profile.playerShapingHistory.Count - 20);
+            for (int i = start; i < profile.playerShapingHistory.Count; i++)
+            {
+                var r = profile.playerShapingHistory[i];
+                sb.AppendLine($"  [{i}] label={r.label}, action={r.action}, tick={r.tick}");
+            }
+            Log.Message(sb.ToString());
+        }
+
+        [DebugAction("RimMind Personality", "Show Mood Offset Table",
+            actionType = DebugActionType.Action)]
+        public static void ShowMoodOffsetTable()
+        {
+            var sb = new StringBuilder("[RimMind-Personality] Mood Offset Lookup Table:");
+            int[] intensities = { -3, -2, -1, 0, 1, 2, 3 };
+            float[] offsets = { -10f, -3f, -1f, 0f, +1f, +3f, +10f };
+            for (int i = 0; i < intensities.Length; i++)
+                sb.AppendLine($"  intensity {intensities[i],+2} => mood offset {offsets[i],+5}");
+            Log.Message(sb.ToString());
+        }
+
+        [DebugAction("RimMind Personality", "Test MoodOffset Calculation",
+            actionType = DebugActionType.Action)]
+        public static void TestMoodOffsetCalculation()
+        {
+            var sb = new StringBuilder("[RimMind-Personality] MoodOffset Calculation Test (intensity -5 to +5):");
+            for (int intensity = -5; intensity <= 5; intensity++)
+            {
+                float offset = MoodOffsetCalculator.CalcMoodOffset(intensity);
+                int clamped = Math.Max(-3, Math.Min(intensity, 3));
+                string note = intensity != clamped ? $" (clamped {intensity} -> {clamped})" : "";
+                sb.AppendLine($"  intensity {intensity,+3} => mood offset {offset,+5}{note}");
+            }
+            Log.Message(sb.ToString());
         }
     }
 }

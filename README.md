@@ -51,8 +51,6 @@ cd RimWorld-RimMind-Mod-Personality
 3. 安装 RimMind-Personality
 4. 在模组管理器中确保加载顺序：Harmony → Core → Personality
 
-<!-- ![安装步骤](images/install-steps.png) -->
-
 ## 快速开始
 
 ### 填写 API Key
@@ -69,14 +67,6 @@ cd RimWorld-RimMind-Mod-Personality
 2. 打开 Bio 页面，点击 **"人格"** 按钮
 3. 查看 AI 生成的人格评估，编辑人格描述和工作/社交倾向
 
-<!-- ![人格档案](images/screenshot-personality-profile.png) -->
-
-## 截图展示
-
-<!-- ![人格Thought](images/screenshot-personality-thought.png) -->
-<!-- ![心情面板](images/screenshot-personality-mood.png) -->
-<!-- ![人格编辑](images/screenshot-personality-edit.png) -->
-
 ## 核心功能
 
 ### AI 人格评估
@@ -85,6 +75,7 @@ cd RimWorld-RimMind-Mod-Personality
 
 - **人格 Thought**：1-3 个动态心情状态，含标签、描述、强度、持续时长
 - **叙事摘要**：50 字内描述小人近期心理变化
+- **身份信息**：动机、特质、价值观（供其他 RimMind 模组使用）
 
 Thought 通过独立槽位注入，在心情面板独立显示，互不叠加。
 
@@ -134,13 +125,12 @@ Thought 通过独立槽位注入，在心情面板独立显示，互不叠加。
 | 技能升级触发 | 开启 | 技能提升时触发 |
 | 事件触发 | 开启 | 重要事件时触发 |
 | 死亡触发 | 开启 | 亲近者死亡时触发 |
-| Thought 数量期望值 (μ) | 1.0 | Poisson 抽样参数（0→固定1个，越大越多，结果 1~3） |
 | Thought 持续时长模式 | AI 决定 | 固定 / AI 决定 |
 | 固定时长 | 24 游戏小时 | 固定模式下的时长（1~24 小时） |
 | 显示通知 | 开启 | 人格更新时右下角提示 |
 | 显示 [RimMind] 前缀 | 开启 | 在心情面板区分 AI 生成和原版 Thought |
 | 启用塑造投票 | 开启 | 玩家可对 AI 评估投票 |
-| 请求过期时间 | 0.50 游戏天 | 评估请求超时自动取消 |
+| 请求过期时间 | 0.50 游戏天 | 塑造投票超时自动取消 |
 | 塑造历史保留数量 | 20 | 保留最近 N 次投票记录供 AI 参考 |
 
 ## 常见问题
@@ -242,7 +232,7 @@ cd RimWorld-RimMind-Mod-Personality
 
 ## Key Features
 
-- **AI Personality Assessment**: Daily (or event-triggered) LLM evaluation generates 1-3 dynamic mood Thoughts + narrative summary
+- **AI Personality Assessment**: Daily (or event-triggered) LLM evaluation generates 1-3 dynamic mood Thoughts + narrative summary + identity (motivations, traits, core values)
 - **Multiple Triggers**: Daily timer, injury, skill milestone, incidents, death of loved ones - each with independent toggle
 - **Editable Profile**: Players can edit personality description, work tendencies, and social tendencies
 - **Shaping Vote**: Players can vote (reinforce/suppress/ignore) on AI assessments, influencing future evaluations
@@ -270,13 +260,12 @@ Event triggers have a 1200 tick cooldown (~0.02 game days) to prevent chain trig
 | Skill Level Up Trigger | On | Trigger on skill improvement |
 | Incident Trigger | On | Trigger on major events |
 | Death Trigger | On | Trigger when loved ones die |
-| Thought Count Expectation (μ) | 1.0 | Poisson sampling parameter (0=fixed 1, higher=more, result 1~3) |
 | Thought Duration Mode | AI Decides | Fixed / AI Decides |
 | Fixed Duration | 24 game hours | Duration in Fixed mode (1~24 hours) |
 | Show Notifications | On | Display notification on personality updates |
 | Show [RimMind] Prefix | On | Distinguish AI-generated Thoughts from vanilla in mood panel |
 | Enable Shaping Vote | On | Players can vote on AI assessments |
-| Request Expiry | 0.50 game days | Auto-cancel evaluation requests after timeout |
+| Request Expiry | 0.50 game days | Auto-cancel shaping votes after timeout |
 | Shaping History Limit | 20 | Keep last N vote records for AI reference |
 
 ## FAQ

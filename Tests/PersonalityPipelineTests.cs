@@ -16,7 +16,7 @@ namespace RimMind.Personality.Tests
         [InlineData( 0,   0f)]
         [InlineData( 1,  +1f)]
         [InlineData( 3, +10f)]
-        public void Pipeline_StateThought_MoodOffsetMatchesIntensity(int intensity, float expected)
+        public void Pipeline_StateThought_MoodOffsetMatchesIntensity(float intensity, float expected)
         {
             string json = $"<Personality>{{\"thoughts\":[{{\"type\":\"state\",\"label\":\"测试\",\"description\":\"描述\",\"intensity\":{intensity}}}],\"narrative\":\"叙事\"}}</Personality>";
 
@@ -25,7 +25,7 @@ namespace RimMind.Personality.Tests
             Assert.NotNull(result);
             var thought = result!.thoughts[0];
             Assert.Equal("state", thought.type);
-            Assert.Equal(intensity, thought.intensity);
+            Assert.Equal(intensity, thought.intensity, 0.001);
             Assert.Equal(expected, MoodOffsetCalculator.CalcMoodOffset(thought.intensity));
         }
 
@@ -75,7 +75,7 @@ namespace RimMind.Personality.Tests
 
             Assert.NotNull(result);
             // DTO 保留原始值
-            Assert.Equal(99, result!.thoughts[0].intensity);
+            Assert.Equal(99f, result!.thoughts[0].intensity, 0.001);
             // 经过 CalcMoodOffset 后 Clamp 到 +10
             Assert.Equal(+10f, MoodOffsetCalculator.CalcMoodOffset(result.thoughts[0].intensity));
         }
@@ -89,7 +89,7 @@ namespace RimMind.Personality.Tests
             Assert.Equal("state", dto.type);
             Assert.Equal(string.Empty, dto.label);
             Assert.Equal(string.Empty, dto.description);
-            Assert.Equal(0, dto.intensity);
+            Assert.Equal(0f, dto.intensity, 0.001);
         }
 
         // ── 6. PersonalityResultDto 默认值 ────────────────────────────────

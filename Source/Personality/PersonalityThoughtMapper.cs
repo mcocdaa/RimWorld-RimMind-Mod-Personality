@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using RimMind.Core;
 using RimMind.Core.Client;
+using RimMind.Core.Context;
 using RimMind.Core.UI;
 using RimMind.Personality.Data;
 using RimWorld;
@@ -10,6 +13,18 @@ namespace RimMind.Personality
 {
     public static class PersonalityThoughtMapper
     {
+        public const string EvaluationSchema = SchemaRegistry.PersonalityOutput;
+        public const string DefaultExcludeKey = "personality_state";
+        public const int DefaultMaxTokens = 600;
+        public const float DefaultTemperature = 0.8f;
+
+        public static float GetPersonalityBudget()
+        {
+            var ctx = RimMindCoreMod.Settings?.Context;
+            if (ctx == null) return 0.6f;
+            return ctx.ContextBudget;
+        }
+
         private static readonly string[] SlotDefNames = new[]
         {
             "AIPersonality_Slot_0",
@@ -30,11 +45,25 @@ namespace RimMind.Personality
             PersonalityResultDto? result;
             try
             {
-                result = JsonConvert.DeserializeObject<PersonalityResultDto>(response.Content);
+                string content = response.Content ?? "";
+                result = JsonConvert.DeserializeObject<PersonalityResultDto>(content);
             }
             catch
             {
                 result = null;
+            }
+
+            if (result == null)
+            {
+                string? trimmed = JsonRepairHelper.TryRepairTruncatedJson(response.Content ?? "");
+                if (trimmed != null)
+                {
+                    try
+                    {
+                        result = JsonConvert.DeserializeObject<PersonalityResultDto>(trimmed);
+                    }
+                    catch { }
+                }
             }
 
             if (result == null)
@@ -48,8 +77,24 @@ namespace RimMind.Personality
                 var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
                 if (profile != null)
                 {
-                    profile.aiNarrative             = result.narrative;
+                    profile.aiNarrative = result.narrative;
                     profile.lastNarrativeUpdateTick = Find.TickManager.TicksGame;
+                }
+            }
+
+            if (result.identity != null)
+            {
+                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                if (profile != null)
+                {
+                    if (profile.agentIdentity == null)
+                        profile.agentIdentity = new RimMind.Core.Agent.AgentIdentity();
+                    if (result.identity.motivations != null)
+                        profile.agentIdentity.Motivations = new List<string>(result.identity.motivations);
+                    if (result.identity.traits != null)
+                        profile.agentIdentity.PersonalityTraits = new List<string>(result.identity.traits);
+                    if (result.identity.core_values != null)
+                        profile.agentIdentity.CoreValues = new List<string>(result.identity.core_values);
                 }
             }
 
@@ -57,7 +102,9 @@ namespace RimMind.Personality
 
             var settings = RimMindPersonalityMod.Settings;
             if (settings == null) return;
+            bool showNotifications = settings.showNotifications;
             int slotIndex = 0;
+            result.thoughts ??= Array.Empty<ThoughtEntryDto>();
             foreach (var entry in result.thoughts)
             {
                 if (slotIndex >= SlotDefNames.Length) break;
@@ -73,7 +120,7 @@ namespace RimMind.Personality
                 var thought = (Thought_AIPersonality)ThoughtMaker.MakeThought(thoughtDef);
                 thought.aiLabel = entry.label;
                 thought.aiDescription = entry.description;
-                thought.aiIntensity = entry.intensity;
+                thought.aiIntensity = (int)entry.intensity;
                 thought.customDurationTicks = CalcDurationTicks(entry, settings);
                 pawn.needs.mood.thoughts.memories.TryGainMemory(thought);
 
@@ -82,8 +129,8 @@ namespace RimMind.Personality
                     var capturedEntry = entry;
 
                     string optReinforce = "RimMind.Personality.Shaping.Reinforce".Translate();
-                    string optSuppress  = "RimMind.Personality.Shaping.Suppress".Translate();
-                    string optIgnore    = "RimMind.Personality.Shaping.Ignore".Translate();
+                    string optSuppress = "RimMind.Personality.Shaping.Suppress".Translate();
+                    string optIgnore = "RimMind.Personality.Shaping.Ignore".Translate();
 
                     RimMindAPI.RegisterPendingRequest(new RequestEntry
                     {
@@ -121,7 +168,7 @@ namespace RimMind.Personality
                 slotIndex++;
             }
 
-            if (settings!.showNotifications && result.thoughts.Length > 0)
+            if (showNotifications && result.thoughts.Length > 0)
             {
                 Messages.Message(
                     "RimMind.Personality.UI.PersonalityUpdated".Translate(pawn.Name.ToStringShort),
@@ -138,7 +185,7 @@ namespace RimMind.Personality
                 && entry.duration_hours.HasValue
                 && entry.duration_hours.Value > 0)
             {
-                return System.Math.Clamp(entry.duration_hours.Value, 1, 24) * TicksPerHour;
+                return (int)(Math.Clamp(entry.duration_hours.Value, 1f, 24f) * TicksPerHour);
             }
             return System.Math.Max(1, (int)(settings.thoughtDurationHours * TicksPerHour));
         }
@@ -164,5 +211,6 @@ namespace RimMind.Personality
                 if (s == defName) return true;
             return false;
         }
+
     }
 }

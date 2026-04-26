@@ -1,77 +1,71 @@
 [h1]RimMind - Personality[/h1]
-AI 驱动的性格系统，让每个殖民者拥有独特的内在世界。每日通过 LLM 评估殖民者状态，注入动态人格 Thought，影响心情与行为。
+让每个殖民者拥有独一无二的内心世界。
 
-[h2] RimMind 是什么 [/h2]
-RimMind 是一套 AI 驱动的 RimWorld 模组套件，通过接入大语言模型 (LLM)，让殖民者拥有人格、记忆、对话和自主决策能力。
+[h2] 你的殖民者不再只是数字 [/h2]
+RimWorld 的殖民者有背景故事、有技能、有特质——但他们没有[b]情绪[/b]。
+受伤了不会沮丧，交到朋友不会开心，日复一日挖矿也不会厌倦。
 
-[h2] 子模组列表与依赖关系 [/h2]
-[table][tr][td][b] 模组 [/b][/td][td][b] 职责 [/b][/td][td][b] 依赖 [/b][/td][td][b] GitHub [/b][/td][/tr][tr][td] RimMind-Core [/td][td] API 客户端、请求调度、上下文打包 [/td][td] Harmony [/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Core] 链接 [/url][/td][/tr][tr][td] RimMind-Actions [/td][td] AI 控制小人的动作执行库 [/td][td] Core [/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Actions] 链接 [/url][/td][/tr][tr][td] RimMind-Advisor [/td][td] AI 扮演小人做出工作决策 [/td][td] Core, Actions [/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Advisor] 链接 [/url][/td][/tr][tr][td] RimMind-Dialogue [/td][td] AI 驱动的对话系统 [/td][td] Core [/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Dialogue] 链接 [/url][/td][/tr][tr][td] RimMind-Memory [/td][td] 记忆采集与上下文注入 [/td][td] Core [/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory] 链接 [/url][/td][/tr][tr][td][b] RimMind-Personality [/b][/td][td] AI 生成人格与想法 [/td][td] Core [/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Personality] 链接 [/url][/td][/tr][tr][td] RimMind-Storyteller [/td][td] AI 叙事者，智能选择事件 [/td][td] Core [/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Storyteller] 链接 [/url][/td][/tr][/table]
-[code]Core ── Actions ── Advisor
-  ├── Dialogue
-  ├── Memory
-  ├── Personality
-  └── Storyteller[/code]
+RimMind-Personality 改变了这一点。
 
-[h2] 核心能力 [/h2]
-[b] 每日性格评估 [/b] - 每天一次，AI 综合分析殖民者的状态、经历、关系，生成个性化的性格 Thoughts。
-[b] 动态心情影响 [/b] - AI 生成的性格 Thought 会直接影响殖民者的心情值，让心理状态随经历真实变化。
-[b] 性格档案可视化 [/b] - 在殖民者的生物标签页新增"性格"面板，查看 AI 对其性格的评估摘要。
-[b] 玩家可编辑 [/b] - 你可以编辑人格描述、工作倾向和社交倾向，AI 评估时会参考你的设定。
-[b] 塑造投票 [/b] - 对 AI 的人格评估投票，投票历史注入后续 AI 请求，让 AI 逐渐学习你的偏好。
-[b] 多种触发方式 [/b] - 每日定时、受伤、技能升级、重要事件、亲近者死亡，均可触发人格评估，每种触发方式可独立开关。
+每天，AI 会审视每个殖民者的处境——他们的健康、关系、工作、遭遇——然后生成[b]真正符合情境的心理状态[/b]。长期卧床的殖民者可能产生"对康复失去信心"；刚交到朋友的殖民者可能"对新伙伴充满期待"。
 
-[h2] 评估维度 [/h2]
+这些不是随机文本。AI 会阅读殖民者的完整状态，给出[b]只有这个人在这个时刻才会有的想法[/b]。
+
+[h2] 心情真的会变 [/h2]
+AI 生成的心理状态直接影响殖民者的心情值。强度从 -3 到 +3，对应的心情偏移从 -10 到 +10。
+
+一个经历了袭击、失去了朋友的殖民者，心情会真的跌入谷底。而一个刚升了技能、收获了丰收的殖民者，会真的感到振奋。
+
+这不是装饰——它会[b]影响游戏决策[/b]。心情低落的殖民者精神崩溃风险更高，你需要认真对待他们的心理状态。
+
+[h2] 五种触发方式 [/h2]
+[b]每日评估[/b] — 每天一次，AI 综合分析殖民者的整体状态
+[b]受伤/患病[/b] — 健康剧变时，殖民者会产生相关的心理反应
+[b]技能升级[/b] — 成长的喜悦，或对重复劳动的厌倦
+[b]重大事件[/b] — 袭击、丰收、访客到来……每个事件都可能改变心态
+[b]亲近者死亡[/b] — 失去重要的人，对其他殖民者的心理冲击
+
+每种触发方式都可以独立开关。你可以只保留每日评估，也可以全部开启让殖民者的心理世界更加丰富。
+
+[h2] 你可以塑造他们 [/h2]
+AI 提出新的人格特质时，你可以投票：
+[b]强化[/b] — 让这个特质更加根深蒂固
+[b]抑制[/b] — 让殖民者逐渐摆脱这个倾向
+[b]忽略[/b] — 不干预，让事情自然发展
+
+你的投票历史会被 AI 记住。久而久之，AI 会[b]学习你的偏好[/b]，生成更符合你期望的人格发展。
+
+你也可以直接编辑每个殖民者的人格描述、工作倾向和社交倾向。AI 评估时会参考你写的内容，就像给演员一份角色设定。
+
+[h2] 每个殖民者都是独特的 [/h2]
+打开殖民者的"人格"面板，你会看到：
 [list]
-[*] 当前情绪状态与心情趋势
-[*] 近期正负经历的影响
-[*] 人际关系质量
-[*] 工作与生活的平衡
-[*] 健康状况的影响
-[*] 玩家编辑的人格描述
+[*] [b]AI 叙事[/b] — 用一段话描述这个殖民者近期的心理变化
+[*] [b]人格描述[/b] — 你可以编辑的底色设定
+[*] [b]工作倾向[/b] — 这个殖民者喜欢做什么、讨厌做什么
+[*] [b]社交倾向[/b] — 他是社交达人还是独来独往
 [/list]
 
-[h2] 核心功能 [/h2]
-[b] AI 人格评估 [/b]
-每日（或事件触发）向 LLM 发送殖民者状态，AI 返回：
-[list]
-[*] [b]人格 Thought[/b]：1-3 个动态心情状态，含标签、描述、强度、持续时长
-[*] [b]叙事摘要[/b]：50 字内描述小人近期心理变化
-[/list]
-Thought 通过独立槽位注入，在心情面板独立显示，互不叠加。
+AI 不仅生成 Thought，还会提取殖民者的[b]动机、特质和价值观[/b]，形成完整的身份画像。这些信息会被 RimMind 套件中的其他模块（Advisor、Dialogue）使用，让 AI 的决策和对话更加符合角色。
 
-[b] 触发机制 [/b]
-[table][tr][td][b] 触发类型 [/b][/td][td][b] 说明 [/b][/td][/tr][tr][td] 每日定时 [/td][td] 每游戏天评估一次（含随机抖动避免同时触发） [/td][/tr][tr][td] 受伤/患病 [/td][td] 健康状态剧变时触发 [/td][/tr][tr][td] 技能里程碑 [/td][td] 技能等级提升时触发 [/td][/tr][tr][td] 重要事件 [/td][td] 袭击、收获等事件时触发 [/td][/tr][tr][td] 亲近者死亡 [/td][td] 社交关系对象死亡时触发 [/td][/tr][/table]
-事件触发有 1200 tick 冷却期（约 0.02 游戏天），防止连锁触发。
+[h2] 与其他 RimMind 模组配合更佳 [/h2]
+[b]+ Memory[/b] — 殖民者记住过去的经历，人格评估更有深度
+[b]+ Advisor[/b] — AI 顾问参考人格档案做出更符合角色的决策
+[b]+ Dialogue[/b] — 对话风格受人格影响，内向者和外向者说话方式不同
 
-[b] 人格档案 [/b]
-每个殖民者拥有持久化的人格档案：
+[h2] 灵活的设置 [/h2]
 [list]
-[*] [b]玩家可编辑[/b]：人格描述、工作倾向、社交倾向
-[*] [b]AI 生成[/b]：近期心理状态叙事（每日更新）
-[*] [b]塑造投票[/b]：玩家可对 AI 的人格评估投票，影响未来评估
+[*] 每种触发方式独立开关
+[*] Thought 持续时长：AI 根据情境决定，或统一固定时长
+[*] 塑造投票：开启/关闭，自定义过期时间和历史保留数量
+[*] 通知和标签前缀：按你的喜好调整显示方式
 [/list]
 
-[b] 心情影响 [/b]
-[table][tr][td][b] AI 强度 [/b][/td][td][b] 心情偏移 [/b][/td][/tr][tr][td] -3 [/td][td] -10 [/td][/tr][tr][td] -2 [/td][td] -3 [/td][/tr][tr][td] -1 [/td][td] -1 [/td][/tr][tr][td] 0 [/td][td] 0 [/td][/tr][tr][td] +1 [/td][td] +1 [/td][/tr][tr][td] +2 [/td][td] +3 [/td][/tr][tr][td] +3 [/td][td] +10 [/td][/tr][/table]
+[h2] 快速开始 [/h2]
+1. 安装 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077]Harmony[/url] 和 RimMind-Core
+2. 安装 RimMind-Personality
+3. 在模组设置中填写 API Key（支持 OpenAI 兼容接口：DeepSeek、Ollama 等）
+4. 进入游戏，选择殖民者，打开 Bio 页面点击"人格"按钮
+5. 等待 AI 自动评估，或使用 Dev 菜单强制触发
 
-[b] 上下文注入 [/b]
-人格档案和当前 Thought 自动注入 AI Prompt，供 Advisor、Dialogue 等模块参考。
-
-[h2] 设置项 [/h2]
-[table][tr][td][b] 设置 [/b][/td][td][b] 默认值 [/b][/td][td][b] 说明 [/b][/td][/tr][tr][td] 启用 AI 人格系统 [/td][td] 开启 [/td][td] 总开关 [/td][/tr][tr][td] 每日定时评估 [/td][td] 开启 [/td][td] 每游戏天评估一次 [/td][/tr][tr][td] 受伤触发 [/td][td] 开启 [/td][td] 健康剧变时触发 [/td][/tr][tr][td] 技能升级触发 [/td][td] 开启 [/td][td] 技能提升时触发 [/td][/tr][tr][td] 事件触发 [/td][td] 开启 [/td][td] 重要事件时触发 [/td][/tr][tr][td] 死亡触发 [/td][td] 开启 [/td][td] 亲近者死亡时触发 [/td][/tr][tr][td] Thought 数量期望值 (μ) [/td][td] 1.0 [/td][td] Poisson 抽样参数（0→固定1个，越大越多，结果 1~3） [/td][/tr][tr][td] Thought 持续时长模式 [/td][td] AI 决定 [/td][td] 固定 / AI 决定 [/td][/tr][tr][td] 固定时长 [/td][td] 24 游戏小时 [/td][td] 固定模式下的时长（1~24 小时） [/td][/tr][tr][td] 显示通知 [/td][td] 开启 [/td][td] 人格更新时右下角提示 [/td][/tr][tr][td] 显示 [RimMind] 前缀 [/td][td] 开启 [/td][td] 在心情面板区分 AI 生成和原版 Thought [/td][/tr][tr][td] 启用塑造投票 [/td][td] 开启 [/td][td] 玩家可对 AI 评估投票 [/td][/tr][tr][td] 请求过期时间 [/td][td] 0.50 游戏天 [/td][td] 评估请求超时自动取消 [/td][/tr][tr][td] 塑造历史保留数量 [/td][td] 20 [/td][td] 保留最近 N 次投票记录供 AI 参考 [/td][/tr][/table]
-
-[h2] 常见问题 [/h2]
-[b] Q: AI 会给殖民者什么 Thought？ [/b]
-A: AI 根据殖民者的状态、经历和关系生成符合情境的 Thought。例如，长期受伤的殖民者可能获得"对康复失去信心"，刚建立关系的殖民者可能获得"对新朋友感到期待"。
-
-[b] Q: 可以编辑人格档案吗？ [/b]
-A: 可以。在 Bio 页面的"人格"面板中，你可以编辑人格描述、工作倾向和社交倾向。AI 评估时会参考你填写的内容。
-
-[b] Q: 塑造投票有什么用？ [/b]
-A: 你可以对 AI 的人格评估投票（强化/抑制），投票历史会注入后续 AI 请求的上下文，让 AI 逐渐学习你的偏好。
-
-[b] Q: Thought 持续多久？ [/b]
-A: 默认由 AI 决定（1~24 小时）。可以切换为"固定"模式，使用设定好的固定时长（默认 24 游戏小时）。
-
-[b] Q: 配合 Memory 和 Advisor 效果更好吗？ [/b]
-A: 是的。Memory 提供历史记忆，Personality 提供人格档案，Advisor 综合这些信息做出更符合角色的决策。
+[b]让殖民者活过来。[/b]

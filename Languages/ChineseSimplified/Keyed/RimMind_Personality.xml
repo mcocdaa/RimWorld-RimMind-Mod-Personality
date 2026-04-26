@@ -1,100 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <!-- RimMindPersonalityMod.cs -->
-    <RimMind.Personality.Settings.TabLabel>人格</RimMind.Personality.Settings.TabLabel>
-    <RimMind.Personality.Settings.EnablePersonality>启用 AI 人格系统</RimMind.Personality.Settings.EnablePersonality>
-    <RimMind.Personality.Settings.EnablePersonality.Desc>开启后，AI 会根据游戏事件和殖民者状态动态生成心理状态（Thought）。</RimMind.Personality.Settings.EnablePersonality.Desc>
-    <RimMind.Personality.Settings.ShowNotifications>显示人格变化通知</RimMind.Personality.Settings.ShowNotifications>
-    <RimMind.Personality.Settings.ShowNotifications.Desc>当 AI 生成新的心理状态时，在屏幕上显示通知。</RimMind.Personality.Settings.ShowNotifications.Desc>
-    <RimMind.Personality.Settings.ShowLabelPrefix>显示标签前缀</RimMind.Personality.Settings.ShowLabelPrefix>
-    <RimMind.Personality.Settings.ShowLabelPrefix.Desc>在心理状态标签前显示"RimMind"前缀，便于区分原版和 AI 生成的 Thought。</RimMind.Personality.Settings.ShowLabelPrefix.Desc>
-    <RimMind.Personality.Settings.ThoughtCountLabel>每次评估生成 Thought 数量（μ = {0}，Poisson 抽样，结果 1~3）</RimMind.Personality.Settings.ThoughtCountLabel>
-    <RimMind.Personality.Settings.ThoughtCountLabel.Desc>使用 Poisson 分布抽样决定每次评估生成的 Thought 数量。μ 越大，生成的 Thought 越多。</RimMind.Personality.Settings.ThoughtCountLabel.Desc>
-    <RimMind.Personality.Settings.ThoughtDuration>Thought 持续时长：</RimMind.Personality.Settings.ThoughtDuration>
-    <RimMind.Personality.Settings.ThoughtDuration.Desc>设置 AI 生成的心理状态（Thought）的持续时间模式。</RimMind.Personality.Settings.ThoughtDuration.Desc>
-    <RimMind.Personality.Settings.AIDecidesDuration>由 AI 决定每个 Thought 的时长</RimMind.Personality.Settings.AIDecidesDuration>
-    <RimMind.Personality.Settings.AIDecidesDuration.Desc>开启后，AI 会在 JSON 中输出 duration_hours 字段，根据情绪强度自动设定持续时间。</RimMind.Personality.Settings.AIDecidesDuration.Desc>
-    <RimMind.Personality.Settings.FixedDuration>  固定时长：{0} 游戏小时</RimMind.Personality.Settings.FixedDuration>
-    <RimMind.Personality.Settings.FixedDuration.Desc>所有 AI 生成的 Thought 统一使用此固定时长。</RimMind.Personality.Settings.FixedDuration.Desc>
-    <RimMind.Personality.Settings.AIDurationHint>  AI 在 JSON 中输出 duration_hours（1~24），自动应用</RimMind.Personality.Settings.AIDurationHint>
-    <RimMind.Personality.Settings.TriggerSources>触发来源</RimMind.Personality.Settings.TriggerSources>
-    <RimMind.Personality.Settings.DailyEval>每日评估</RimMind.Personality.Settings.DailyEval>
-    <RimMind.Personality.Settings.DailyEval.Desc>每天自动对殖民者进行人格评估，生成心理状态。</RimMind.Personality.Settings.DailyEval.Desc>
-    <RimMind.Personality.Settings.InjuryTrigger>受伤触发</RimMind.Personality.Settings.InjuryTrigger>
-    <RimMind.Personality.Settings.InjuryTrigger.Desc>当殖民者受伤时，触发人格评估。</RimMind.Personality.Settings.InjuryTrigger.Desc>
-    <RimMind.Personality.Settings.SkillTrigger>技能升级触发</RimMind.Personality.Settings.SkillTrigger>
-    <RimMind.Personality.Settings.SkillTrigger.Desc>当殖民者技能升级时，触发人格评估。</RimMind.Personality.Settings.SkillTrigger.Desc>
-    <RimMind.Personality.Settings.IncidentTrigger>事件触发</RimMind.Personality.Settings.IncidentTrigger>
-    <RimMind.Personality.Settings.IncidentTrigger.Desc>当殖民地发生重大事件时，触发人格评估。</RimMind.Personality.Settings.IncidentTrigger.Desc>
-    <RimMind.Personality.Settings.DeathTrigger>死亡触发</RimMind.Personality.Settings.DeathTrigger>
-    <RimMind.Personality.Settings.DeathTrigger.Desc>当殖民者死亡时，触发其他殖民者的人格评估。</RimMind.Personality.Settings.DeathTrigger.Desc>
-    <RimMind.Personality.Settings.Section.Display>显示</RimMind.Personality.Settings.Section.Display>
-    <RimMind.Personality.Settings.Section.Thought>思维设置</RimMind.Personality.Settings.Section.Thought>
-    <RimMind.Personality.Settings.Section.Request>请求设置</RimMind.Personality.Settings.Section.Request>
-    <RimMind.Personality.Settings.RequestExpire>请求过期：{0} 游戏天</RimMind.Personality.Settings.RequestExpire>
-    <RimMind.Personality.Settings.RequestExpire.Desc>人格评估请求超过此时间未获得响应则自动取消。</RimMind.Personality.Settings.RequestExpire.Desc>
-    <RimMind.Personality.Settings.ShapingHistoryMax>塑造历史保留数量：{0}</RimMind.Personality.Settings.ShapingHistoryMax>
-    <RimMind.Personality.Settings.ShapingHistoryMax.Desc>保留最近 N 次人格塑造投票记录，用于 AI 评估时参考。</RimMind.Personality.Settings.ShapingHistoryMax.Desc>
-
-    <!-- Dialog_PersonalityProfile.cs -->
-    <RimMind.Personality.UI.ProfileTitle>{0} 的 AI 人格</RimMind.Personality.UI.ProfileTitle>
-    <RimMind.Personality.UI.DescriptionLabel>人格描述（底色，AI 评估时参考）</RimMind.Personality.UI.DescriptionLabel>
-    <RimMind.Personality.UI.WorkTendencies>工作倾向</RimMind.Personality.UI.WorkTendencies>
-    <RimMind.Personality.UI.SocialTendencies>社交倾向</RimMind.Personality.UI.SocialTendencies>
-    <RimMind.Personality.UI.AINarrative>AI 近期叙事（只读，每日 AI 更新）</RimMind.Personality.UI.AINarrative>
-    <RimMind.Personality.UI.NarrativeEmpty>（尚未评估——运行一段时间后 AI 会自动填写）</RimMind.Personality.UI.NarrativeEmpty>
-    <RimMind.Personality.UI.Save>保存</RimMind.Personality.UI.Save>
-    <RimMind.Personality.UI.Cancel>取消</RimMind.Personality.UI.Cancel>
-    <RimMind.Personality.UI.ProfileSaved>[RimMind] {0} 的人格档案已保存。</RimMind.Personality.UI.ProfileSaved>
-
-    <!-- BioTabPersonalityPatch.cs -->
-    <RimMind.Personality.UI.BioTab.Label>人格</RimMind.Personality.UI.BioTab.Label>
-    <RimMind.Personality.UI.BioTab.NarrativeTip>AI 近期叙事：{0}</RimMind.Personality.UI.BioTab.NarrativeTip>
-    <RimMind.Personality.UI.BioTab.NotEvaluatedTip>尚未评估——运行一段时间后 AI 将自动填写人格叙事。</RimMind.Personality.UI.BioTab.NotEvaluatedTip>
-
-    <!-- PersonalityThoughtMapper.cs -->
-    <RimMind.Personality.UI.PersonalityUpdated>[RimMind] {0} 的人格状态已更新。</RimMind.Personality.UI.PersonalityUpdated>
-
-    <!-- RimMindPersonalityMod.cs (Context Providers) -->
-    <RimMind.Personality.Context.ProfileHeader>[{0} 的人格档案]</RimMind.Personality.Context.ProfileHeader>
-    <RimMind.Personality.Context.WorkTendencies>工作倾向：{0}</RimMind.Personality.Context.WorkTendencies>
-    <RimMind.Personality.Context.SocialTendencies>社交倾向：{0}</RimMind.Personality.Context.SocialTendencies>
-    <RimMind.Personality.Context.RecentState>近期心理状态：{0}</RimMind.Personality.Context.RecentState>
-    <RimMind.Personality.Context.StateHeader>[当前人格/对话状态]</RimMind.Personality.Context.StateHeader>
-    <RimMind.Personality.Context.StateEntry>- {0}（剩余 {1} 游戏时）</RimMind.Personality.Context.StateEntry>
-
-    <!-- EvaluationInstructionHelper.cs -->
-    <RimMind.Personality.Prompt.TriggerReason>[触发原因] {0}</RimMind.Personality.Prompt.TriggerReason>
-    <RimMind.Personality.Prompt.EvalInstruction>请根据以上信息，选择今天适用的人格状态，恰好生成 {0} 个 thought。</RimMind.Personality.Prompt.EvalInstruction>
-    <RimMind.Personality.Prompt.DiversityHint>多样化提示：尽量保证多样化的人格特质，避免重复生成相同类型的心理状态。如果近期已有类似的心理状态，请尝试生成不同维度的 Thought。</RimMind.Personality.Prompt.DiversityHint>
-    <RimMind.Personality.Prompt.JsonFormatDirect>直接输出以下 JSON 格式，不要包含任何其他文字：</RimMind.Personality.Prompt.JsonFormatDirect>
-    <RimMind.Personality.Prompt.LabelHint>简短标签（≤8字）</RimMind.Personality.Prompt.LabelHint>
-    <RimMind.Personality.Prompt.DescHint>具体描述（≤20字，第三人称）</RimMind.Personality.Prompt.DescHint>
-    <RimMind.Personality.Prompt.NarrativeHint>50字以内，描述小人近期心理状态的变化故事</RimMind.Personality.Prompt.NarrativeHint>
-    <RimMind.Personality.Prompt.JsonTemplateNoDuration>{{"thoughts":[{{"type":"state","label":"{0}","description":"{1}","intensity":-1}}],"narrative":"{2}"}}</RimMind.Personality.Prompt.JsonTemplateNoDuration>
-    <RimMind.Personality.Prompt.DurationHint>duration_hours 设置建议：轻微情绪（intensity ±1）设为 1-4 小时；中等情绪（intensity ±2）设为 5-12 小时；强烈/深层心理状态（intensity ±3）设为 13-24 小时。</RimMind.Personality.Prompt.DurationHint>
-    <RimMind.Personality.Prompt.JsonTemplateWithDuration>{{"thoughts":[{{"type":"state","label":"{0}","description":"{1}","intensity":-1,"duration_hours":8}}],"narrative":"{2}"}}</RimMind.Personality.Prompt.JsonTemplateWithDuration>
-
-    <!-- Five-section System Prompt -->
-    <RimMind.Personality.Prompt.System.Role>[角色] 你是 RimWorld 殖民者的人格评估师，负责根据游戏状态生成小人的心理状态。</RimMind.Personality.Prompt.System.Role>
-    <RimMind.Personality.Prompt.System.Goal>[目标] 根据小人的当前状态、人格档案和触发原因，生成符合角色心理的 Thought 和叙事。</RimMind.Personality.Prompt.System.Goal>
-    <RimMind.Personality.Prompt.System.Process>[流程]\n1. 阅读小人的完整状态（心情、健康、技能、特性、背景）\n2. 参考人格档案和玩家塑造历史\n3. 如果有触发原因，优先反映该事件的心理影响\n4. 生成 Thought（type + label + description + intensity）\n5. 生成叙事（描述小人近期心理状态变化）</RimMind.Personality.Prompt.System.Process>
-    <RimMind.Personality.Prompt.System.Constraint>[约束]\n- label ≤8字，description ≤20字（第三人称）\n- intensity 范围 -3~+3\n- Thought 应反映小人的真实状态，不要凭空创造\n- 叙事 ≤50字\n- 不要打破第四面墙</RimMind.Personality.Prompt.System.Constraint>
-    <RimMind.Personality.Prompt.System.Example>[示例]\n输入：小人心情35%，刚在战斗中受重伤，特性：坚韧\n输出：{{"thoughts":[{{"type":"state","label":"忍痛坚持","description":"虽然受了重伤，但意志坚定","intensity":2}}],"narrative":"尽管伤痛难忍，他依然咬牙坚持，不愿让同伴担心。"}}</RimMind.Personality.Prompt.System.Example>
-    <RimMind.Personality.Prompt.System.Output>[输出] 只返回以下 JSON 格式，不要输出其他内容：\n{{"thoughts":[{{"type":"state","label":"...","description":"...","intensity":0}}],"narrative":"..."}}</RimMind.Personality.Prompt.System.Output>
-    <RimMind.Personality.Prompt.System.Fallback>[兜底] 如果无法评估，返回 {{"thoughts":[],"narrative":"状态正常，无明显心理波动。"}}。</RimMind.Personality.Prompt.System.Fallback>
-
-    <!-- Shaping Vote -->
-    <RimMind.Personality.Settings.EnableShapingVote>启用人格塑造投票</RimMind.Personality.Settings.EnableShapingVote>
-    <RimMind.Personality.Settings.EnableShapingVote.Desc>开启后，AI 评估时会提出新的人格特质，玩家可以投票强化、抑制或忽略。</RimMind.Personality.Settings.EnableShapingVote.Desc>
-    <RimMind.Personality.Shaping.NewTrait>新人格特质</RimMind.Personality.Shaping.NewTrait>
-    <RimMind.Personality.Shaping.Reinforce>强化</RimMind.Personality.Shaping.Reinforce>
-    <RimMind.Personality.Shaping.Suppress>抑制</RimMind.Personality.Shaping.Suppress>
-    <RimMind.Personality.Shaping.Ignore>忽略</RimMind.Personality.Shaping.Ignore>
-
-    <!-- RimMindPersonalityMod.cs - Shaping Action Labels (context provider) -->
-    <RimMind.Personality.Context.ShapingHistoryHeader>[玩家塑造历史]</RimMind.Personality.Context.ShapingHistoryHeader>
-    <RimMind.Personality.ShapingAction.Reinforce>强化</RimMind.Personality.ShapingAction.Reinforce>
-    <RimMind.Personality.ShapingAction.Suppress>抑制</RimMind.Personality.ShapingAction.Suppress>
-    <RimMind.Personality.ShapingAction.Ignore>忽略</RimMind.Personality.ShapingAction.Ignore>
+  <!-- RimMindPersonalityMod.cs -->
+  <RimMind.Personality.Settings.TabLabel>人格</RimMind.Personality.Settings.TabLabel>
+  <RimMind.Personality.Settings.EnablePersonality>启用 AI 人格系统</RimMind.Personality.Settings.EnablePersonality>
+  <RimMind.Personality.Settings.EnablePersonality.Desc>开启后，AI 会根据游戏事件和殖民者状态动态生成心理状态（Thought）。</RimMind.Personality.Settings.EnablePersonality.Desc>
+  <RimMind.Personality.Settings.ShowNotifications>显示人格变化通知</RimMind.Personality.Settings.ShowNotifications>
+  <RimMind.Personality.Settings.ShowNotifications.Desc>当 AI 生成新的心理状态时，在屏幕上显示通知。</RimMind.Personality.Settings.ShowNotifications.Desc>
+  <RimMind.Personality.Settings.ShowLabelPrefix>显示标签前缀</RimMind.Personality.Settings.ShowLabelPrefix>
+  <RimMind.Personality.Settings.ShowLabelPrefix.Desc>在心理状态标签前显示"RimMind"前缀，便于区分原版和 AI 生成的 Thought。</RimMind.Personality.Settings.ShowLabelPrefix.Desc>
+  <RimMind.Personality.Settings.ThoughtDuration>Thought 持续时长：</RimMind.Personality.Settings.ThoughtDuration>
+  <RimMind.Personality.Settings.ThoughtDuration.Desc>设置 AI 生成的心理状态（Thought）的持续时间模式。</RimMind.Personality.Settings.ThoughtDuration.Desc>
+  <RimMind.Personality.Settings.AIDecidesDuration>由 AI 决定每个 Thought 的时长</RimMind.Personality.Settings.AIDecidesDuration>
+  <RimMind.Personality.Settings.AIDecidesDuration.Desc>开启后，AI 会在 JSON 中输出 duration_hours 字段，根据情绪强度自动设定持续时间。</RimMind.Personality.Settings.AIDecidesDuration.Desc>
+  <RimMind.Personality.Settings.FixedDuration>  固定时长：{0} 游戏小时</RimMind.Personality.Settings.FixedDuration>
+  <RimMind.Personality.Settings.FixedDuration.Desc>所有 AI 生成的 Thought 统一使用此固定时长。</RimMind.Personality.Settings.FixedDuration.Desc>
+  <RimMind.Personality.Settings.AIDurationHint>  AI 在 JSON 中输出 duration_hours（1~24），自动应用</RimMind.Personality.Settings.AIDurationHint>
+  <RimMind.Personality.Settings.TriggerSources>触发来源</RimMind.Personality.Settings.TriggerSources>
+  <RimMind.Personality.Settings.DailyEval>每日评估</RimMind.Personality.Settings.DailyEval>
+  <RimMind.Personality.Settings.DailyEval.Desc>每天自动对殖民者进行人格评估，生成心理状态。</RimMind.Personality.Settings.DailyEval.Desc>
+  <RimMind.Personality.Settings.InjuryTrigger>受伤触发</RimMind.Personality.Settings.InjuryTrigger>
+  <RimMind.Personality.Settings.InjuryTrigger.Desc>当殖民者受伤时，触发人格评估。</RimMind.Personality.Settings.InjuryTrigger.Desc>
+  <RimMind.Personality.Settings.SkillTrigger>技能升级触发</RimMind.Personality.Settings.SkillTrigger>
+  <RimMind.Personality.Settings.SkillTrigger.Desc>当殖民者技能升级时，触发人格评估。</RimMind.Personality.Settings.SkillTrigger.Desc>
+  <RimMind.Personality.Settings.IncidentTrigger>事件触发</RimMind.Personality.Settings.IncidentTrigger>
+  <RimMind.Personality.Settings.IncidentTrigger.Desc>当殖民地发生重大事件时，触发人格评估。</RimMind.Personality.Settings.IncidentTrigger.Desc>
+  <RimMind.Personality.Settings.DeathTrigger>死亡触发</RimMind.Personality.Settings.DeathTrigger>
+  <RimMind.Personality.Settings.DeathTrigger.Desc>当殖民者死亡时，触发其他殖民者的人格评估。</RimMind.Personality.Settings.DeathTrigger.Desc>
+  <RimMind.Personality.Settings.Section.Display>显示</RimMind.Personality.Settings.Section.Display>
+  <RimMind.Personality.Settings.Section.Thought>思维设置</RimMind.Personality.Settings.Section.Thought>
+  <RimMind.Personality.Settings.Section.Request>请求设置</RimMind.Personality.Settings.Section.Request>
+  <RimMind.Personality.Settings.RequestExpire>塑造投票过期：{0} 游戏天</RimMind.Personality.Settings.RequestExpire>
+  <RimMind.Personality.Settings.RequestExpire.Desc>塑造投票请求超过此时间未获响应则自动取消。</RimMind.Personality.Settings.RequestExpire.Desc>
+  <RimMind.Personality.Settings.ShapingHistoryMax>塑造历史保留数量：{0}</RimMind.Personality.Settings.ShapingHistoryMax>
+  <RimMind.Personality.Settings.ShapingHistoryMax.Desc>保留最近 N 次人格塑造投票记录，用于 AI 评估时参考。</RimMind.Personality.Settings.ShapingHistoryMax.Desc>
+  <!-- Dialog_PersonalityProfile.cs -->
+  <RimMind.Personality.UI.ProfileTitle>{0} 的 AI 人格</RimMind.Personality.UI.ProfileTitle>
+  <RimMind.Personality.UI.DescriptionLabel>人格描述（底色，AI 评估时参考）</RimMind.Personality.UI.DescriptionLabel>
+  <RimMind.Personality.UI.WorkTendencies>工作倾向</RimMind.Personality.UI.WorkTendencies>
+  <RimMind.Personality.UI.SocialTendencies>社交倾向</RimMind.Personality.UI.SocialTendencies>
+  <RimMind.Personality.UI.AINarrative>AI 近期叙事（只读，每日 AI 更新）</RimMind.Personality.UI.AINarrative>
+  <RimMind.Personality.UI.NarrativeEmpty>（尚未评估——运行一段时间后 AI 会自动填写）</RimMind.Personality.UI.NarrativeEmpty>
+  <RimMind.Personality.UI.Save>保存</RimMind.Personality.UI.Save>
+  <RimMind.Personality.UI.Cancel>取消</RimMind.Personality.UI.Cancel>
+  <RimMind.Personality.UI.ProfileSaved>[RimMind] {0} 的人格档案已保存。</RimMind.Personality.UI.ProfileSaved>
+  <!-- BioTabPersonalityPatch.cs -->
+  <RimMind.Personality.UI.BioTab.Label>人格</RimMind.Personality.UI.BioTab.Label>
+  <RimMind.Personality.UI.BioTab.NarrativeTip>AI 近期叙事：{0}</RimMind.Personality.UI.BioTab.NarrativeTip>
+  <RimMind.Personality.UI.BioTab.NotEvaluatedTip>尚未评估——运行一段时间后 AI 将自动填写人格叙事。</RimMind.Personality.UI.BioTab.NotEvaluatedTip>
+  <!-- PersonalityThoughtMapper.cs -->
+  <RimMind.Personality.UI.PersonalityUpdated>[RimMind] {0} 的人格状态已更新。</RimMind.Personality.UI.PersonalityUpdated>
+  <!-- RimMindPersonalityMod.cs (Context Providers) -->
+  <RimMind.Personality.Context.ProfileHeader>[{0} 的人格档案]</RimMind.Personality.Context.ProfileHeader>
+  <RimMind.Personality.Context.WorkTendencies>工作倾向：{0}</RimMind.Personality.Context.WorkTendencies>
+  <RimMind.Personality.Context.SocialTendencies>社交倾向：{0}</RimMind.Personality.Context.SocialTendencies>
+  <RimMind.Personality.Context.RecentState>近期心理状态：{0}</RimMind.Personality.Context.RecentState>
+  <RimMind.Personality.Context.StateHeader>[当前人格/对话状态]</RimMind.Personality.Context.StateHeader>
+  <RimMind.Personality.Context.StateEntry>- {0}（剩余 {1} 游戏时）</RimMind.Personality.Context.StateEntry>
+  <!-- Shaping Vote -->
+  <RimMind.Personality.Settings.EnableShapingVote>启用人格塑造投票</RimMind.Personality.Settings.EnableShapingVote>
+  <RimMind.Personality.Settings.EnableShapingVote.Desc>开启后，AI 评估时会提出新的人格特质，玩家可以投票强化、抑制或忽略。</RimMind.Personality.Settings.EnableShapingVote.Desc>
+  <RimMind.Personality.Shaping.NewTrait>新人格特质</RimMind.Personality.Shaping.NewTrait>
+  <RimMind.Personality.Shaping.Reinforce>强化</RimMind.Personality.Shaping.Reinforce>
+  <RimMind.Personality.Shaping.Suppress>抑制</RimMind.Personality.Shaping.Suppress>
+  <RimMind.Personality.Shaping.Ignore>忽略</RimMind.Personality.Shaping.Ignore>
+  <!-- RimMindPersonalityMod.cs - Shaping Action Labels (context provider) -->
+  <RimMind.Personality.Context.ShapingHistoryHeader>[玩家塑造历史]</RimMind.Personality.Context.ShapingHistoryHeader>
+  <RimMind.Personality.ShapingAction.Reinforce>强化</RimMind.Personality.ShapingAction.Reinforce>
+  <RimMind.Personality.ShapingAction.Suppress>抑制</RimMind.Personality.ShapingAction.Suppress>
+  <RimMind.Personality.ShapingAction.Ignore>忽略</RimMind.Personality.ShapingAction.Ignore>
+  <!-- TaskInstruction sub-keys (extensible list) -->
+  <RimMind.Personality.Prompt.TaskInstruction.Role>你是 RimWorld 殖民者的人格评估师，负责根据游戏状态生成小人的心理状态。</RimMind.Personality.Prompt.TaskInstruction.Role>
+  <RimMind.Personality.Prompt.TaskInstruction.Goal>根据小人的当前状态、人格档案和触发原因，生成符合角色心理的 Thought 和叙事。</RimMind.Personality.Prompt.TaskInstruction.Goal>
+  <RimMind.Personality.Prompt.TaskInstruction.Process>1. 阅读小人的完整状态（心情、健康、技能、特性、背景）
+2. 参考人格档案和玩家塑造历史
+3. 如果有触发原因，优先反映该事件的心理影响
+4. 生成 Thought（type + label + description + intensity）
+5. 生成叙事（描述小人近期心理状态变化）</RimMind.Personality.Prompt.TaskInstruction.Process>
+  <RimMind.Personality.Prompt.TaskInstruction.Constraint>label ≤8字，description ≤20字（第三人称）；intensity 范围 -3~+3；Thought 应反映小人的真实状态，不要凭空创造；叙事 ≤50字；不要打破第四面墙</RimMind.Personality.Prompt.TaskInstruction.Constraint>
+  <RimMind.Personality.Prompt.TaskInstruction.Example>输入：小人心情35%，刚在战斗中受重伤，特性：坚韧
+输出：{"thoughts":[{"type":"state","label":"忍痛坚持","description":"虽然受了重伤，但意志坚定","intensity":2}],"narrative":"尽管伤痛难忍，他依然咬牙坚持，不愿让同伴担心。"}</RimMind.Personality.Prompt.TaskInstruction.Example>
+  <RimMind.Personality.Prompt.TaskInstruction.Output>只返回以下 JSON 格式，不要输出其他内容：
+{"thoughts":[{"type":"state","label":"...","description":"...","intensity":0}],"narrative":"..."}</RimMind.Personality.Prompt.TaskInstruction.Output>
+  <RimMind.Personality.Prompt.TaskInstruction.Fallback>如果无法评估，返回 {"thoughts":[],"narrative":"状态正常，无明显心理波动。"}。</RimMind.Personality.Prompt.TaskInstruction.Fallback>
+  <RimMind.Personality.Prompt.TaskInstruction.EvalInstruction>请根据以上信息，选择今天适用的人格状态，恰好生成 {0} 个 thought。</RimMind.Personality.Prompt.TaskInstruction.EvalInstruction>
+  <RimMind.Personality.Prompt.TaskInstruction.JsonFormatDirect>直接输出以下 JSON 格式，不要包含任何其他文字：</RimMind.Personality.Prompt.TaskInstruction.JsonFormatDirect>
+  <RimMind.Personality.Prompt.TaskInstruction.LabelHint>简短标签（≤8字）</RimMind.Personality.Prompt.TaskInstruction.LabelHint>
+  <RimMind.Personality.Prompt.TaskInstruction.DescHint>具体描述（≤20字，第三人称）</RimMind.Personality.Prompt.TaskInstruction.DescHint>
+  <RimMind.Personality.Prompt.TaskInstruction.NarrativeHint>50字以内，描述小人近期心理状态的变化故事</RimMind.Personality.Prompt.TaskInstruction.NarrativeHint>
+  <RimMind.Personality.Prompt.TaskInstruction.DurationHint>duration_hours 设置建议：轻微情绪（intensity ±1）设为 1-4 小时；中等情绪（intensity ±2）设为 5-12 小时；强烈/深层心理状态（intensity ±3）设为 13-24 小时。</RimMind.Personality.Prompt.TaskInstruction.DurationHint>
+  <RimMind.Personality.Prompt.TaskInstruction.DiversityHint>多样化提示：尽量保证多样化的人格特质，避免重复生成相同类型的心理状态。如果近期已有类似的心理状态，请尝试生成不同维度的 Thought。</RimMind.Personality.Prompt.TaskInstruction.DiversityHint>
+  <RimMind.Personality.Prompt.TaskInstruction.TriggerReason>[触发原因] {0}</RimMind.Personality.Prompt.TaskInstruction.TriggerReason>
 </LanguageData>

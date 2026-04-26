@@ -15,9 +15,9 @@ namespace RimMind.Personality
         /// 根据 AI intensity 值计算 RimWorld 心情偏移量。
         /// intensity 超出 [-3, 3] 时自动 clamp。
         /// </summary>
-        public static float CalcMoodOffset(int intensity)
+        public static float CalcMoodOffset(float intensity)
         {
-            int idx = Math.Max(0, Math.Min(intensity + 3, MoodTable.Length - 1));
+            int idx = Math.Max(0, Math.Min((int)intensity + 3, MoodTable.Length - 1));
             return MoodTable[idx];
         }
     }

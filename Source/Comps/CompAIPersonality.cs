@@ -1,6 +1,6 @@
 using RimMind.Core;
-using RimMind.Core.Client;
-using RimMind.Core.Prompt;
+using RimMind.Core.Comps;
+using RimMind.Core.Context;
 using RimMind.Personality.Data;
 using RimWorld;
 using Verse;
@@ -27,10 +27,11 @@ namespace RimMind.Personality.Comps
         private const int JitterRange = 3000;
         private const int EventCooldownTicks = 1200;
 
-        private bool   _hasPendingRequest;
-        private int    _lastEventTick = -EventCooldownTicks;
+        private bool _hasPendingRequest;
+        private int _lastEventTick = -EventCooldownTicks;
+        private int _pendingRequestTick;
         private string? _pendingEventContext;
-        private int    _dailyJitter = -1;
+        private int _dailyJitter = -1;
 
         private Pawn Pawn => (Pawn)parent;
         private AIPersonalitySettings Settings => RimMindPersonalityMod.Settings;
@@ -45,9 +46,21 @@ namespace RimMind.Personality.Comps
         public override void CompTick()
         {
             if (!Settings.enablePersonality) return;
-            if (!RimMindAPI.IsConfigured())    return;
-            if (_hasPendingRequest)           return;
-            if (!IsEligible())                return;
+            if (RimMindAPI.IsConfigured() == false) return;
+            if (CompPawnAgent.IsAgentActive(Pawn)) return;
+            if (_hasPendingRequest)
+            {
+                if (Find.TickManager.TicksGame - _pendingRequestTick > 60000)
+                {
+                    Log.Warning($"[RimMind-Personality] Pending request timeout for {Pawn.Name.ToStringShort}, resetting.");
+                    _hasPendingRequest = false;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            if (!IsEligible()) return;
 
             bool dailyFire = Settings.enableDailyEval && Pawn.IsHashIntervalTick(DailyInterval + GetDailyJitter());
             bool eventFire = _pendingEventContext != null &&
@@ -57,23 +70,25 @@ namespace RimMind.Personality.Comps
 
             string? eventCtx = _pendingEventContext;
             _pendingEventContext = null;
-            _lastEventTick       = Find.TickManager.TicksGame;
-            _hasPendingRequest   = true;
+            _lastEventTick = Find.TickManager.TicksGame;
+            _hasPendingRequest = true;
+            _pendingRequestTick = Find.TickManager.TicksGame;
 
-            int thoughtCount = EvaluationInstructionHelper.SampleThoughtCount(Settings.thoughtCountMu);
-            var request = new AIRequest
+            // ContextEngine + RequestStructured 路径
+            var ctxRequest = new ContextRequest
             {
-                SystemPrompt = BuildSystemPrompt(),
-                UserPrompt   = PersonalityContextBuilder.BuildEvaluationPrompt(Pawn, eventCtx, thoughtCount),
-                MaxTokens    = 300,
-                Temperature  = 0.8f,
-                RequestId    = $"Personality_{Pawn.ThingID}",
-                ModId        = "Personality",
-                ExpireAtTicks = Find.TickManager.TicksGame + Settings.requestExpireTicks,
-                Priority     = AIRequestPriority.Low,
+                NpcId = $"NPC-{Pawn.thingIDNumber}",
+                Scenario = ScenarioIds.Personality,
+                Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
+                CurrentQuery = eventCtx,
+                ExcludeKeys = new[] { PersonalityThoughtMapper.DefaultExcludeKey },
+                MaxTokens = PersonalityThoughtMapper.DefaultMaxTokens,
+                Temperature = PersonalityThoughtMapper.DefaultTemperature,
             };
 
-            RimMindAPI.RequestAsync(request, response =>
+            var schema = PersonalityThoughtMapper.EvaluationSchema;
+
+            RimMindAPI.RequestStructured(ctxRequest, schema, response =>
             {
                 _hasPendingRequest = false;
                 PersonalityThoughtMapper.Apply(response, Pawn);
@@ -89,10 +104,10 @@ namespace RimMind.Personality.Comps
 
             bool enabled = eventType switch
             {
-                TriggerEventType.Injury  => Settings.enableInjuryTrigger,
-                TriggerEventType.Skill   => Settings.enableSkillTrigger,
+                TriggerEventType.Injury => Settings.enableInjuryTrigger,
+                TriggerEventType.Skill => Settings.enableSkillTrigger,
                 TriggerEventType.Incident => Settings.enableIncidentTrigger,
-                TriggerEventType.Death   => Settings.enableDeathTrigger,
+                TriggerEventType.Death => Settings.enableDeathTrigger,
                 _ => true,
             };
             if (!enabled) return;
@@ -106,12 +121,9 @@ namespace RimMind.Personality.Comps
             Pawn.Map != null &&
             Pawn.needs?.mood != null;
 
-        private static string BuildSystemPrompt()
-        {
-            return StructuredPromptBuilder.FromKeyPrefix("RimMind.Personality.Prompt.System")
-                .Build();
-        }
+        // ContextEngine 接管，不再手动构建 SystemPrompt
 
+        // 从 ContextSettings 读取人格场景预算
         public override void PostExposeData()
         {
             base.PostExposeData();
