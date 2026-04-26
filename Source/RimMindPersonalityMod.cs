@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RimMind.Core;
 using RimMind.Core.Context;
+using RimMind.Core.Prompt;
 using HarmonyLib;
 using RimMind.Core.UI;
 using RimMind.Personality.Data;
@@ -97,11 +98,16 @@ namespace RimMind.Personality
                 return sb.ToString().TrimEnd();
             });
 
+            var personalityTaskInstruction = TaskInstructionBuilder.Build("RimMind.Personality.Prompt.TaskInstruction",
+                "Role", "Goal", "Process", "Constraint", "Example", "Output", "Fallback",
+                "EvalInstruction", "JsonFormatDirect", "LabelHint", "DescHint",
+                "NarrativeHint", "DurationHint", "DiversityHint", "TriggerReason");
+
             ContextKeyRegistry.Register("personality_task", ContextLayer.L0_Static, 0.95f,
                 pawn =>
                 {
                     if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
-                    return new List<ContextEntry> { new ContextEntry("RimMind.Personality.Prompt.TaskInstruction".Translate()) };
+                    return new List<ContextEntry> { new ContextEntry(personalityTaskInstruction) };
                 }, "RimMind.Personality");
         }
 

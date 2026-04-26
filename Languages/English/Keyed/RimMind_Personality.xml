@@ -68,5 +68,26 @@
   <RimMind.Personality.ShapingAction.Reinforce>Reinforce</RimMind.Personality.ShapingAction.Reinforce>
   <RimMind.Personality.ShapingAction.Suppress>Suppress</RimMind.Personality.ShapingAction.Suppress>
   <RimMind.Personality.ShapingAction.Ignore>Ignore</RimMind.Personality.ShapingAction.Ignore>
-  <RimMind.Personality.Prompt.TaskInstruction>You are a personality evaluator, responsible for analyzing colonist personality changes. Based on events and current state, evaluate personality development.\n\nOutput format: Return JSON: {"thoughts":[{"type":"thought_type","label":"label","description":"description","intensity":0.5,"duration_hours":24}],"narrative":"narrative description"}\n\nBehavior constraints:\n- Evaluations should be based on the colonist's personality traits and experiences\n- Thought type and intensity should be reasonable\n- Narrative descriptions should be vivid and natural</RimMind.Personality.Prompt.TaskInstruction>
+  <!-- TaskInstruction sub-keys (extensible list) -->
+  <RimMind.Personality.Prompt.TaskInstruction.Role>You are a RimWorld colonist personality evaluator, responsible for generating psychological states based on game state.</RimMind.Personality.Prompt.TaskInstruction.Role>
+  <RimMind.Personality.Prompt.TaskInstruction.Goal>Based on the colonist's current state, personality profile, and trigger reason, generate Thoughts and narrative that fit the character's psychology.</RimMind.Personality.Prompt.TaskInstruction.Goal>
+  <RimMind.Personality.Prompt.TaskInstruction.Process>1. Read the colonist's full state (mood, health, skills, traits, backstory)
+2. Reference personality profile and player shaping history
+3. If there is a trigger reason, prioritize reflecting that event's psychological impact
+4. Generate Thoughts (type + label + description + intensity)
+5. Generate narrative (describing recent psychological state changes)</RimMind.Personality.Prompt.TaskInstruction.Process>
+  <RimMind.Personality.Prompt.TaskInstruction.Constraint>label ≤8 chars, description ≤20 chars (third person); intensity range -3~+3; Thoughts should reflect the colonist's real state, do not fabricate; narrative ≤50 chars; do not break the fourth wall</RimMind.Personality.Prompt.TaskInstruction.Constraint>
+  <RimMind.Personality.Prompt.TaskInstruction.Example>Input: colonist mood 35%, just seriously wounded in battle, trait: Tough
+Output: {"thoughts":[{"type":"state","label":"Enduring Pain","description":"Seriously wounded but determined","intensity":2}],"narrative":"Despite the agonizing pain, he grits his teeth and perseveres, unwilling to worry his companions."}</RimMind.Personality.Prompt.TaskInstruction.Example>
+  <RimMind.Personality.Prompt.TaskInstruction.Output>Return only the following JSON format, nothing else:
+{"thoughts":[{"type":"state","label":"...","description":"...","intensity":0}],"narrative":"..."}</RimMind.Personality.Prompt.TaskInstruction.Output>
+  <RimMind.Personality.Prompt.TaskInstruction.Fallback>If unable to evaluate, return {"thoughts":[],"narrative":"State normal, no significant psychological fluctuations."}.</RimMind.Personality.Prompt.TaskInstruction.Fallback>
+  <RimMind.Personality.Prompt.TaskInstruction.EvalInstruction>Based on the above information, select the applicable personality state for today, generating exactly {0} thought(s).</RimMind.Personality.Prompt.TaskInstruction.EvalInstruction>
+  <RimMind.Personality.Prompt.TaskInstruction.JsonFormatDirect>Output the following JSON format directly, without any other text:</RimMind.Personality.Prompt.TaskInstruction.JsonFormatDirect>
+  <RimMind.Personality.Prompt.TaskInstruction.LabelHint>Short label (≤8 chars)</RimMind.Personality.Prompt.TaskInstruction.LabelHint>
+  <RimMind.Personality.Prompt.TaskInstruction.DescHint>Specific description (≤20 chars, third person)</RimMind.Personality.Prompt.TaskInstruction.DescHint>
+  <RimMind.Personality.Prompt.TaskInstruction.NarrativeHint>Within 50 chars, describing the colonist's recent psychological state changes</RimMind.Personality.Prompt.TaskInstruction.NarrativeHint>
+  <RimMind.Personality.Prompt.TaskInstruction.DurationHint>duration_hours suggestion: mild emotion (intensity ±1) set 1-4 hours; moderate emotion (intensity ±2) set 5-12 hours; intense/deep psychological state (intensity ±3) set 13-24 hours.</RimMind.Personality.Prompt.TaskInstruction.DurationHint>
+  <RimMind.Personality.Prompt.TaskInstruction.DiversityHint>Diversity hint: strive for diverse personality traits, avoid repeating the same type of psychological state. If similar psychological states already exist recently, try generating Thoughts from different dimensions.</RimMind.Personality.Prompt.TaskInstruction.DiversityHint>
+  <RimMind.Personality.Prompt.TaskInstruction.TriggerReason>[Trigger Reason] {0}</RimMind.Personality.Prompt.TaskInstruction.TriggerReason>
 </LanguageData>
