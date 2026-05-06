@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using RimMind.Contracts.Extension;
 using RimMind.Core;
 using RimMind.Core.Context;
 using RimMind.Core.Prompt;
@@ -23,8 +24,10 @@ namespace RimMind.Personality
 
             RegisterContextProviders();
             RegisterAgentIdentityProvider();
-            RimMindAPI.RegisterSettingsTab("personality", () => "RimMind.Personality.Settings.TabLabel".Translate(), DrawSettingsContent);
-            RimMindAPI.RegisterModCooldown("Personality", () => 36000);
+            RimMindAPI.Extensions<ISettingsTab>().Register(new PersonalitySettingsTab(this));
+            RimMindAPI.Extensions<IToggleBehavior>().Register(new PersonalityToggleBehavior());
+            RimMindAPI.Extensions<IModCooldown>().Register(new PersonalityModCooldown());
+            RimMindAPI.Extensions<ISkipCheck>().Register(new PersonalityActionSkipCheck());
             Log.Message("[RimMind-Personality] Initialized.");
         }
 

@@ -17,14 +17,14 @@ namespace Verse
 
     public static class Scribe_Values
     {
-        public static void Look<T>(ref T value, string label, T defaultValue = default) { }
+        public static void Look<T>(ref T value, string label, T? defaultValue = default!) { }
     }
 
     public static class Scribe_Collections
     {
         public static void Look<T>(ref List<T> list, string label, LookMode lookMode) { }
         public static void Look<T>(ref List<T> list, string label) { }
-        public static void Look<TKey, TValue>(ref Dictionary<TKey, TValue> dict, string label, LookMode keyLookMode, LookMode valueLookMode) { }
+        public static void Look<TKey, TValue>(ref Dictionary<TKey, TValue> dict, string label, LookMode keyLookMode, LookMode valueLookMode) where TKey : notnull { }
     }
 
     public static class Scribe_Deep
