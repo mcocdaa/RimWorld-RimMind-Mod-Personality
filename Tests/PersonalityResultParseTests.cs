@@ -1,5 +1,5 @@
 using System;
-using RimMind.Core.Internal;
+using RimMind.Kernel.Json;
 using RimMind.Personality;
 using Xunit;
 

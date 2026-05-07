@@ -1,6 +1,6 @@
-using LudeonTK;
+﻿using LudeonTK;
 using RimMind.Core;
-using RimMind.Core.Context;
+using RimMind.Kernel.Context;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
 using RimWorld;

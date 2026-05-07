@@ -1,6 +1,6 @@
-using RimMind.Core;
+﻿using RimMind.Core;
 using RimMind.Core.Comps;
-using RimMind.Core.Context;
+using RimMind.Kernel.Context;
 using RimMind.Personality.Data;
 using RimWorld;
 using Verse;
