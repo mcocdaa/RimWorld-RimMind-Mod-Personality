@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using RimMind.Contracts.Context;
 using RimMind.Contracts.Extension;
 using RimMind.Core;
 using RimMind.Kernel.Context;
@@ -43,14 +44,16 @@ namespace RimMind.Personality
         private static void RegisterContextProviders()
         {
             ContextKeyRegistry.Register("personality_profile", ContextLayer.L3_State, 0.25f,
-                pawn =>
+                pawnObj =>
                 {
                     if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    var pawn = pawnObj as Pawn;
+                    if (pawn == null) return new List<ContextEntry>();
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
                     if (profile == null || profile.IsEmpty) return new List<ContextEntry>();
 
                     var sb = new System.Text.StringBuilder();
-                    sb.AppendLine("RimMind.Personality.Context.ProfileHeader".Translate(pawn.Name.ToStringShort));
+                    sb.AppendLine("RimMind.Personality.Context.ProfileHeader".Translate(pawn.Name?.ToStringShort ?? ""));
                     if (!profile.description.NullOrEmpty())
                         sb.AppendLine(profile.description);
                     if (!profile.workTendencies.NullOrEmpty())
@@ -63,9 +66,11 @@ namespace RimMind.Personality
                 }, "RimMind.Personality");
 
             ContextKeyRegistry.Register("personality_state", ContextLayer.L3_State, 0.2f,
-                pawn =>
+                pawnObj =>
                 {
                     if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    var pawn = pawnObj as Pawn;
+                    if (pawn == null) return new List<ContextEntry>();
                     var memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
                     if (memories == null) return new List<ContextEntry>();
 
@@ -84,9 +89,11 @@ namespace RimMind.Personality
                 }, "RimMind.Personality");
 
             ContextKeyRegistry.Register("personality_shaping", ContextLayer.L3_State, 0.15f,
-                pawn =>
+                pawnObj =>
                 {
                     if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    var pawn = pawnObj as Pawn;
+                    if (pawn == null) return new List<ContextEntry>();
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
                     if (profile?.playerShapingHistory == null || profile.playerShapingHistory.Count == 0)
                         return new List<ContextEntry>();
@@ -113,7 +120,7 @@ namespace RimMind.Personality
                 "NarrativeHint", "DurationHint", "DiversityHint", "TriggerReason");
 
             ContextKeyRegistry.Register("personality_task", ContextLayer.L0_Static, 0.95f,
-                pawn =>
+                pawnObj =>
                 {
                     if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
                     return new List<ContextEntry> { new ContextEntry(personalityTaskInstruction) };

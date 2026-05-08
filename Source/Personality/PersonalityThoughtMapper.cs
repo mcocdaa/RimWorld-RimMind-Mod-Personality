@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using RimMind.Contracts.Client;
+using RimMind.Contracts.UI;
 using RimMind.Core;
 using RimMind.Core.Client;
 using RimMind.Kernel.Context;
@@ -13,7 +15,7 @@ namespace RimMind.Personality
 {
     public static class PersonalityThoughtMapper
     {
-        public const string EvaluationSchema = SchemaRegistry.PersonalityOutput;
+        public static readonly string EvaluationSchema = SchemaRegistry.PersonalityOutput;
         public const string DefaultExcludeKey = "personality_state";
         public const int DefaultMaxTokens = 600;
         public const float DefaultTemperature = 0.8f;

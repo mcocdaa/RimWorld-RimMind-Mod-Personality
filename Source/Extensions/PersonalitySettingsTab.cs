@@ -1,5 +1,6 @@
 using UnityEngine;
 using RimMind.Contracts.Extension;
+using Verse;
 
 namespace RimMind.Personality
 {
