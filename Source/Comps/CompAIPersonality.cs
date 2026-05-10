@@ -1,3 +1,4 @@
+using RimMind.Contracts.Result;
 using RimMind.Core;
 using RimMind.Adapters.Verse;
 using RimMind.Kernel.Context;
@@ -85,10 +86,10 @@ namespace RimMind.Personality.Comps
 
             var schema = PersonalityThoughtMapper.EvaluationSchema;
 
-            RimMindAPI.RequestStructured(ctxRequest, schema, response =>
+            RimMindAPI.RequestStructured(ctxRequest, schema, result =>
             {
                 _hasPendingRequest = false;
-                PersonalityThoughtMapper.Apply(response, Pawn);
+                PersonalityThoughtMapper.Apply(result, Pawn);
             });
         }
 

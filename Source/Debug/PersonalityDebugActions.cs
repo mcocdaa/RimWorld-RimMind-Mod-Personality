@@ -1,4 +1,5 @@
 using LudeonTK;
+using RimMind.Contracts.Result;
 using RimMind.Core;
 using RimMind.Kernel.Context;
 using RimMind.Contracts.Context;
@@ -52,16 +53,16 @@ namespace RimMind.Personality.Debug
 
             var schema = PersonalityThoughtMapper.EvaluationSchema;
 
-            RimMindAPI.RequestStructured(ctxRequest, schema, response =>
+            RimMindAPI.RequestStructured(ctxRequest, schema, result =>
             {
-                if (!response.Success)
+                if (result.IsErr)
                 {
-                    Log.Warning($"[RimMind-Personality] Evaluation failed ({pawn.Name.ToStringShort}): {response.Error}");
+                    Log.Warning($"[RimMind-Personality] Evaluation failed ({pawn.Name.ToStringShort}): {result.Error}");
                     return;
                 }
 
-                Log.Message($"[RimMind-Personality] Received response ({pawn.Name.ToStringShort}):\n{response.Content}");
-                PersonalityThoughtMapper.Apply(response, pawn);
+                Log.Message($"[RimMind-Personality] Received response ({pawn.Name.ToStringShort}):\n{result.Value.Content}");
+                PersonalityThoughtMapper.Apply(result, pawn);
             });
         }
 

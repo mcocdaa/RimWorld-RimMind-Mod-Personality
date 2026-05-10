@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using RimMind.Contracts.Client;
+using RimMind.Contracts.Result;
 using RimMind.Contracts.UI;
 using RimMind.Core;
 using RimMind.Adapters.Client;
@@ -38,39 +39,41 @@ namespace RimMind.Personality
 
         private const int TicksPerHour = 2500;
 
-        public static void Apply(AIResponse response, Pawn pawn)
+        public static void Apply(Result<AIResponse, RimMindError> result, Pawn pawn)
         {
-            if (!response.Success)
+            if (result.IsErr)
             {
-                Log.Warning($"[RimMind-Personality] Request failed ({pawn.Name.ToStringShort}): {response.Error}");
+                Log.Warning($"[RimMind-Personality] Request failed ({pawn.Name.ToStringShort}): {result.Error}");
                 return;
             }
 
-            PersonalityResultDto? result;
+            var response = result.Value;
+
+            PersonalityResultDto? dto;
             try
             {
                 string content = response.Content ?? "";
-                result = JsonConvert.DeserializeObject<PersonalityResultDto>(content);
+                dto = JsonConvert.DeserializeObject<PersonalityResultDto>(content);
             }
             catch
             {
-                result = null;
+                dto = null;
             }
 
-            if (result == null)
+            if (dto == null)
             {
                 string? trimmed = JsonRepairHelper.TryRepairTruncatedJson(response.Content ?? "");
                 if (trimmed != null)
                 {
                     try
                     {
-                        result = JsonConvert.DeserializeObject<PersonalityResultDto>(trimmed);
+                        dto = JsonConvert.DeserializeObject<PersonalityResultDto>(trimmed);
                     }
                     catch { }
                 }
             }
 
-            if (result == null)
+            if (dto == null)
             {
                 Log.Warning($"[RimMind-Personality] Response parse failed ({pawn.Name.ToStringShort}):\n{response.Content}");
                 return;
@@ -78,22 +81,22 @@ namespace RimMind.Personality
 
             var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
 
-            if (!result.narrative.NullOrEmpty() && profile != null)
+            if (!dto.narrative.NullOrEmpty() && profile != null)
             {
-                profile.aiNarrative = result.narrative;
+                profile.aiNarrative = dto.narrative;
                 profile.lastNarrativeUpdateTick = Find.TickManager.TicksGame;
             }
 
-            if (result.identity != null && profile != null)
+            if (dto.identity != null && profile != null)
             {
                 if (profile.agentIdentity == null)
                     profile.agentIdentity = new RimMind.Core.Agent.AgentIdentity();
-                if (result.identity.motivations != null)
-                    profile.agentIdentity.Motivations = new List<string>(result.identity.motivations);
-                if (result.identity.traits != null)
-                    profile.agentIdentity.PersonalityTraits = new List<string>(result.identity.traits);
-                if (result.identity.core_values != null)
-                    profile.agentIdentity.CoreValues = new List<string>(result.identity.core_values);
+                if (dto.identity.motivations != null)
+                    profile.agentIdentity.Motivations = new List<string>(dto.identity.motivations);
+                if (dto.identity.traits != null)
+                    profile.agentIdentity.PersonalityTraits = new List<string>(dto.identity.traits);
+                if (dto.identity.core_values != null)
+                    profile.agentIdentity.CoreValues = new List<string>(dto.identity.core_values);
             }
 
             RemoveAllAIPersonalityThoughts(pawn);
@@ -102,8 +105,8 @@ namespace RimMind.Personality
             if (settings == null) return;
             bool showNotifications = settings.showNotifications;
             int slotIndex = 0;
-            result.thoughts ??= Array.Empty<ThoughtEntryDto>();
-            foreach (var entry in result.thoughts)
+            dto.thoughts ??= Array.Empty<ThoughtEntryDto>();
+            foreach (var entry in dto.thoughts)
             {
                 if (slotIndex >= SlotDefNames.Length) break;
 
@@ -166,7 +169,7 @@ namespace RimMind.Personality
                 slotIndex++;
             }
 
-            if (showNotifications && result.thoughts.Length > 0)
+            if (showNotifications && dto.thoughts.Length > 0)
             {
                 Messages.Message(
                     "RimMind.Personality.UI.PersonalityUpdated".Translate(pawn.Name.ToStringShort),
