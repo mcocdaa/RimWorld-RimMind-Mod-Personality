@@ -1,6 +1,7 @@
-﻿using LudeonTK;
+using LudeonTK;
 using RimMind.Core;
 using RimMind.Kernel.Context;
+using RimMind.Contracts.Context;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
 using RimWorld;
