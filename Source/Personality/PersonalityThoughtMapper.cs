@@ -43,7 +43,7 @@ namespace RimMind.Personality
         {
             if (result.IsErr)
             {
-                Log.Warning($"[RimMind-Personality] Request failed ({pawn.Name.ToStringShort}): {result.Error}");
+                RimMindErrors.Warn($"[RimMind-Personality] Request failed ({pawn.Name.ToStringShort}): {result.Error}");
                 return;
             }
 
@@ -75,7 +75,7 @@ namespace RimMind.Personality
 
             if (dto == null)
             {
-                Log.Warning($"[RimMind-Personality] Response parse failed ({pawn.Name.ToStringShort}):\n{response.Content}");
+                RimMindErrors.Warn($"[RimMind-Personality] Response parse failed ({pawn.Name.ToStringShort}):\n{response.Content}");
                 return;
             }
 
@@ -113,7 +113,7 @@ namespace RimMind.Personality
                 var thoughtDef = DefDatabase<ThoughtDef>.GetNamedSilentFail(SlotDefNames[slotIndex]);
                 if (thoughtDef == null)
                 {
-                    Log.Warning($"[RimMind-Personality] ThoughtDef '{SlotDefNames[slotIndex]}' not found.");
+                    RimMindErrors.Warn($"[RimMind-Personality] ThoughtDef '{SlotDefNames[slotIndex]}' not found.");
                     slotIndex++;
                     continue;
                 }

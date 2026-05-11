@@ -50,7 +50,7 @@ namespace RimMind.Personality.Comps
             {
                 if (Find.TickManager.TicksGame - _pendingRequestTick > Settings.requestTimeoutTicks)
                 {
-                    Log.Warning($"[RimMind-Personality] Pending request timeout for {Pawn.Name.ToStringShort}, resetting.");
+                    RimMindErrors.Warn($"[RimMind-Personality] Pending request timeout for {Pawn.Name.ToStringShort}, resetting.");
                     _hasPendingRequest = false;
                 }
                 else

@@ -22,19 +22,19 @@ namespace RimMind.Personality.Debug
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
             if (pawn == null)
             {
-                Log.Warning("[RimMind-Personality] Please select a pawn on the map first, then open the Dev menu.");
+                RimMindErrors.Warn("[RimMind-Personality] Please select a pawn on the map first, then open the Dev menu.");
                 return;
             }
 
             if (pawn.GetComp<CompAIPersonality>() == null)
             {
-                Log.Warning($"[RimMind-Personality] {pawn.Name.ToStringShort} has no CompAIPersonality (non-humanlike?).");
+                RimMindErrors.Warn($"[RimMind-Personality] {pawn.Name.ToStringShort} has no CompAIPersonality (non-humanlike?).");
                 return;
             }
 
             if (!RimMindAPI.IsConfigured())
             {
-                Log.Warning("[RimMind-Personality] API not configured. Please enter API Key in Mod settings first.");
+                RimMindErrors.Warn("[RimMind-Personality] API not configured. Please enter API Key in Mod settings first.");
                 return;
             }
 
@@ -57,7 +57,7 @@ namespace RimMind.Personality.Debug
             {
                 if (result.IsErr)
                 {
-                    Log.Warning($"[RimMind-Personality] Evaluation failed ({pawn.Name.ToStringShort}): {result.Error}");
+                    RimMindErrors.Warn($"[RimMind-Personality] Evaluation failed ({pawn.Name.ToStringShort}): {result.Error}");
                     return;
                 }
 
@@ -73,7 +73,7 @@ namespace RimMind.Personality.Debug
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
             if (pawn == null)
             {
-                Log.Warning("[RimMind-Personality] Please select a pawn first.");
+                RimMindErrors.Warn("[RimMind-Personality] Please select a pawn first.");
                 return;
             }
 
@@ -131,7 +131,7 @@ namespace RimMind.Personality.Debug
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
             if (pawn == null)
             {
-                Log.Warning("[RimMind-Personality] Please select a pawn first.");
+                RimMindErrors.Warn("[RimMind-Personality] Please select a pawn first.");
                 return;
             }
 
@@ -152,7 +152,7 @@ namespace RimMind.Personality.Debug
         public static void ListEnabledPawns()
         {
             var map = Find.CurrentMap;
-            if (map == null) { Log.Warning("[RimMind-Personality] No active map."); return; }
+            if (map == null) { RimMindErrors.Warn("[RimMind-Personality] No active map."); return; }
 
             var sb = new StringBuilder("=== Pawns with personality system enabled ===\n");
             int count = 0;
@@ -181,7 +181,7 @@ namespace RimMind.Personality.Debug
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
             if (pawn == null)
             {
-                Log.Warning("[RimMind-Personality] Please select a pawn first.");
+                RimMindErrors.Warn("[RimMind-Personality] Please select a pawn first.");
                 return;
             }
 
@@ -196,7 +196,7 @@ namespace RimMind.Personality.Debug
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
             if (pawn == null)
             {
-                Log.Warning("[RimMind-Personality] Please select a pawn first.");
+                RimMindErrors.Warn("[RimMind-Personality] Please select a pawn first.");
                 return;
             }
 
