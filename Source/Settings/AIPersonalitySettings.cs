@@ -9,7 +9,7 @@ namespace RimMind.Personality
         public bool enablePersonality = true;
         public bool showNotifications = true;
 
-        // 触发来源开关
+        // 触发来源开�?
         public bool enableDailyEval = true;
         public bool enableInjuryTrigger = true;
         public bool enableSkillTrigger = true;
@@ -18,10 +18,10 @@ namespace RimMind.Personality
 
         public float thoughtDurationHours = 24f;
 
-        /// <summary>Fixed = 使用 thoughtDurationHours；AIDecides = 由 AI 在 JSON 中决定 duration_hours。</summary>
+        /// <summary>Fixed = 使用 thoughtDurationHours；AIDecides = �?AI �?JSON 中决�?duration_hours�?/summary>
         public ThoughtDurationMode durationMode = ThoughtDurationMode.AIDecides;
 
-        /// <summary>在心情面板的 Thought 标签前显示 [RimMind] 前缀。</summary>
+        /// <summary>在心情面板的 Thought 标签前显�?[RimMind] 前缀�?/summary>
         public bool showLabelPrefix = true;
 
         public bool enableShapingVote = true;

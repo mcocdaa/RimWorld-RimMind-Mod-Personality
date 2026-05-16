@@ -119,7 +119,7 @@ namespace RimMind.Personality
                     return new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) };
                 }, "RimMind.Personality");
 
-            var personalityTaskInstruction = TaskInstructionBuilder.Build("RimMind.Personality.Prompt.TaskInstruction",
+            var personalityTaskInstruction = TaskInstructionBuilder.Build("RimMind.Personality.Prompt.TaskInstruction", null,
                 "Role", "Goal", "Process", "Constraint", "Example", "Output", "Fallback",
                 "EvalInstruction", "JsonFormatDirect", "LabelHint", "DescHint",
                 "NarrativeHint", "DurationHint", "DiversityHint", "TriggerReason");
