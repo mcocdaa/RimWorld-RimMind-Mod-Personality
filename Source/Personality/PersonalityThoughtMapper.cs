@@ -1,15 +1,20 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using RimMind.Contracts.Client;
-using RimMind.Contracts.Result;
-using RimMind.Contracts.UI;
-using RimMind.Core;
-using RimMind.Adapters.Client;
-using RimMind.Kernel.Json;
-using RimMind.Kernel.Context;
-using RimMind.Contracts.Context;
-using RimMind.Adapters.UI;
+using RimMind.Application.Common.Interfaces.Client;
+using RimMind.Application.Common.Models.Client;
+using RimMind.Domain.ValueObjects;
+using RimMind.Application.Common.Interfaces.UI;
+using RimMind.Application.Common.Models.UI;
+using RimMind.Presentation;
+using RimMind.Presentation.Settings;
+using RimMind.Infrastructure.Services.Clients;
+using RimMind.Application.Features.Json;
+using RimMind.Application.Features.Context;
+using RimMind.Application.Common.Models.Context;
+using RimMind.Application.Common.Interfaces.Context;
+using RimMind.Infrastructure.UI;
+using RimMind.Presentation.Context;
 using RimMind.Personality.Data;
 using RimWorld;
 using Verse;
@@ -90,7 +95,7 @@ namespace RimMind.Personality
             if (dto.identity != null && profile != null)
             {
                 if (profile.agentIdentity == null)
-                    profile.agentIdentity = new RimMind.Core.Agent.AgentIdentity();
+                    profile.agentIdentity = new RimMind.Presentation.Agent.AgentIdentity();
                 if (dto.identity.motivations != null)
                     profile.agentIdentity.Motivations = new List<string>(dto.identity.motivations);
                 if (dto.identity.traits != null)

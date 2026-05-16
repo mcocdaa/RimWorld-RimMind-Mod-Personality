@@ -1,5 +1,6 @@
 using UnityEngine;
-using RimMind.Contracts.Extension;
+using RimMind.Application.Common.Interfaces.Extension;
+using RimMind.Presentation.Settings;
 using Verse;
 
 namespace RimMind.Personality
