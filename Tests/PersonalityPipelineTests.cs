@@ -1,14 +1,14 @@
-using RimMind.Kernel.Json;
+using RimMind.Application.Features.Json;
 using RimMind.Personality;
 using Xunit;
 
-// 端到端纯逻辑流水线测试：JSON 解析 �?DTO �?心情偏移计算
-// 不依�?RimWorld，不需�?Pawn / DefDatabase
+// 端到端纯逻辑流水线测试：JSON 解析 �?DTO �?心情偏移计算
+// 不依�?RimWorld，不需�?Pawn / DefDatabase
 namespace RimMind.Personality.Tests
 {
     public class PersonalityPipelineTests
     {
-        // ── 1. state thought �?心情偏移全链�?────────────────────────────
+        // ── 1. state thought �?心情偏移全链�?────────────────────────────
 
         [Theory]
         [InlineData(-3, -10f)]
@@ -29,7 +29,7 @@ namespace RimMind.Personality.Tests
             Assert.Equal(expected, MoodOffsetCalculator.CalcMoodOffset(thought.intensity));
         }
 
-        // ── 2. behavior thought 不影响心情（intensity 通常�?0，但 pipeline 不强制）──
+        // ── 2. behavior thought 不影响心情（intensity 通常�?0，但 pipeline 不强制）──
 
         [Fact]
         public void Pipeline_BehaviorThought_TypeIsBehavior()
@@ -40,11 +40,11 @@ namespace RimMind.Personality.Tests
 
             Assert.NotNull(result);
             Assert.Equal("behavior", result!.thoughts[0].type);
-            // behavior thought 心情偏移�?0
+            // behavior thought 心情偏移�?0
             Assert.Equal(0f, MoodOffsetCalculator.CalcMoodOffset(result.thoughts[0].intensity));
         }
 
-        // ── 3. 最�?3 �?thought（stackLimit=3），全部解析 ───────────────
+        // ── 3. 最�?3 �?thought（stackLimit=3），全部解析 ───────────────
 
         [Fact]
         public void Pipeline_ThreeThoughts_AllParsed()
@@ -64,7 +64,7 @@ namespace RimMind.Personality.Tests
             Assert.Equal( 0f, MoodOffsetCalculator.CalcMoodOffset(result.thoughts[2].intensity));
         }
 
-        // ── 4. 超出范围�?intensity �?CalcMoodOffset 中被 Clamp ─────────
+        // ── 4. 超出范围�?intensity �?CalcMoodOffset 中被 Clamp ─────────
 
         [Fact]
         public void Pipeline_OutOfRangeIntensity_ClampedInMoodCalc()
@@ -74,13 +74,13 @@ namespace RimMind.Personality.Tests
             var result = JsonTagExtractor.Extract<PersonalityResultDto>(json, "Personality");
 
             Assert.NotNull(result);
-            // DTO 保留原始�?
+            // DTO 保留原始�?
             Assert.Equal(99f, result!.thoughts[0].intensity, 0.001);
-            // 经过 CalcMoodOffset �?Clamp �?+10
+            // 经过 CalcMoodOffset �?Clamp �?+10
             Assert.Equal(+10f, MoodOffsetCalculator.CalcMoodOffset(result.thoughts[0].intensity));
         }
 
-        // ── 5. ThoughtEntryDto 默认�?──────────────────────────────────────
+        // ── 5. ThoughtEntryDto 默认�?──────────────────────────────────────
 
         [Fact]
         public void ThoughtEntryDto_Defaults_AreCorrect()
@@ -92,7 +92,7 @@ namespace RimMind.Personality.Tests
             Assert.Equal(0f, dto.intensity, 0.001);
         }
 
-        // ── 6. PersonalityResultDto 默认�?────────────────────────────────
+        // ── 6. PersonalityResultDto 默认�?────────────────────────────────
 
         [Fact]
         public void PersonalityResultDto_Defaults_AreCorrect()

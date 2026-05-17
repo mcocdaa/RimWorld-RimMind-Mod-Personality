@@ -20,7 +20,7 @@
   <ItemGroup>
     <Compile Include="../Source/Personality/MoodOffsetCalculator.cs" />
     <Compile Include="../Source/Personality/PersonalityResultDto.cs" />
-    <Compile Include="../../RimMind-Core/Source/Kernel/Json/JsonTagExtractor.cs" />
+    <Compile Include="../../RimMind-Core/Source/Application/Features/Json/JsonTagExtractor.cs" />
   </ItemGroup>
 
 </Project>
