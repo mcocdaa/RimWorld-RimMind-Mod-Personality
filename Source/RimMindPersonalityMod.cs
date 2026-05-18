@@ -1,7 +1,17 @@
+using System.Collections.Generic;
 using System.Linq;
-using RimMind.Core;
+using RimMind.Application.Common.Interfaces.Context;
+using RimMind.Application.Common.Interfaces.Extension;
+using RimMind.Presentation;
+using RimMind.Presentation.Settings;
+using RimMind.Application.Features.Context;
+using RimMind.Application.Common.Models.Context;
+using RimMind.Application.Common.Models.UI;
+using RimMind.Application.Features.Prompt;
+using RimMind.Domain.ValueObjects;
 using HarmonyLib;
-using RimMind.Core.UI;
+using RimMind.Infrastructure.UI;
+using RimMind.Presentation.Context;
 using RimMind.Personality.Data;
 using UnityEngine;
 using Verse;
@@ -19,73 +29,107 @@ namespace RimMind.Personality
             new Harmony("mcocdaa.RimMindPersonality").PatchAll();
 
             RegisterContextProviders();
-            RimMindAPI.RegisterSettingsTab("personality", () => "RimMind.Personality.Settings.TabLabel".Translate(), DrawSettingsContent);
-            RimMindAPI.RegisterModCooldown("Personality", () => 36000);
+            RegisterAgentIdentityProvider();
+            RimMindAPI.Extensions<ISettingsTab>().Register(new PersonalitySettingsTab(this));
+            RimMindAPI.Extensions<IToggleBehavior>().Register(new PersonalityToggleBehavior());
+            RimMindAPI.Extensions<IModCooldown>().Register(new PersonalityModCooldown());
+            RimMindAPI.Extensions<ISkipCheck>().Register(new PersonalityActionSkipCheck());
             Log.Message("[RimMind-Personality] Initialized.");
+        }
+
+        private static void RegisterAgentIdentityProvider()
+        {
+            RimMindAPI.RegisterAgentIdentityProvider(pawn =>
+            {
+                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                return profile?.agentIdentity;
+            });
         }
 
         private static void RegisterContextProviders()
         {
-            RimMindAPI.RegisterPawnContextProvider("personality_profile", pawn =>
-            {
-                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
-                if (profile == null || profile.IsEmpty) return null;
-
-                var sb = new System.Text.StringBuilder();
-                sb.AppendLine("RimMind.Personality.Context.ProfileHeader".Translate(pawn.Name.ToStringShort));
-                if (!profile.description.NullOrEmpty())
-                    sb.AppendLine(profile.description);
-                if (!profile.workTendencies.NullOrEmpty())
-                    sb.AppendLine("RimMind.Personality.Context.WorkTendencies".Translate(profile.workTendencies));
-                if (!profile.socialTendencies.NullOrEmpty())
-                    sb.AppendLine("RimMind.Personality.Context.SocialTendencies".Translate(profile.socialTendencies));
-                if (!profile.aiNarrative.NullOrEmpty())
-                    sb.AppendLine("RimMind.Personality.Context.RecentState".Translate(profile.aiNarrative));
-                return sb.ToString().TrimEnd();
-            });
-
-            RimMindAPI.RegisterPawnContextProvider("personality_state", pawn =>
-            {
-                var memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
-                if (memories == null) return null;
-
-                var sb = new System.Text.StringBuilder("RimMind.Personality.Context.StateHeader".Translate() + "\n");
-                bool any = false;
-                foreach (var t in memories)
+            ContextKeyRegistry.Register("personality_profile", ContextLayer.L3_State, 0.25f,
+                pawnObj =>
                 {
-                    if (t.def.defName != "AIPersonality_State" &&
-                        t.def.defName != "AIPersonality_BehaviorFlag" &&
-                        t.def.defName != "AIDialogue_Thought") continue;
+                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    var pawn = pawnObj as Pawn;
+                    if (pawn == null) return new List<ContextEntry>();
+                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                    if (profile == null || profile.IsEmpty) return new List<ContextEntry>();
 
-                    string desc = (t as Thought_AIPersonality)?.aiDescription ?? t.def.label;
-                    float  hours = t.DurationTicks / 2500f;
-                    sb.AppendLine("RimMind.Personality.Context.StateEntry".Translate(desc, $"{hours:F1}"));
-                    any = true;
-                }
-                return any ? sb.ToString().TrimEnd() : null;
-            });
+                    var sb = new System.Text.StringBuilder();
+                    sb.AppendLine("RimMind.Personality.Context.ProfileHeader".Translate(pawn.Name?.ToStringShort ?? ""));
+                    if (!profile.description.NullOrEmpty())
+                        sb.AppendLine(profile.description);
+                    if (!profile.workTendencies.NullOrEmpty())
+                        sb.AppendLine("RimMind.Personality.Context.WorkTendencies".Translate(profile.workTendencies));
+                    if (!profile.socialTendencies.NullOrEmpty())
+                        sb.AppendLine("RimMind.Personality.Context.SocialTendencies".Translate(profile.socialTendencies));
+                    if (!profile.aiNarrative.NullOrEmpty())
+                        sb.AppendLine("RimMind.Personality.Context.RecentState".Translate(profile.aiNarrative));
+                    return new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) };
+                }, "RimMind.Personality");
 
-            RimMindAPI.RegisterPawnContextProvider("personality_shaping", pawn =>
-            {
-                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
-                if (profile?.playerShapingHistory == null || profile.playerShapingHistory.Count == 0)
-                    return null;
-
-                int maxCount = Settings?.shapingHistoryMaxCount ?? 50;
-                var recent = profile.playerShapingHistory.Skip(System.Math.Max(0, profile.playerShapingHistory.Count - maxCount)).ToList();
-                var sb = new System.Text.StringBuilder("RimMind.Personality.Context.ShapingHistoryHeader".Translate());
-                foreach (var r in recent)
+            ContextKeyRegistry.Register("personality_state", ContextLayer.L3_State, 0.2f,
+                pawnObj =>
                 {
-                    string actionLabel = r.action switch
+                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    var pawn = pawnObj as Pawn;
+                    if (pawn == null) return new List<ContextEntry>();
+                    var memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
+                    if (memories == null) return new List<ContextEntry>();
+
+                    var sb = new System.Text.StringBuilder("RimMind.Personality.Context.StateHeader".Translate() + "\n");
+                    bool any = false;
+                    foreach (var t in memories)
                     {
-                        "reinforce" => "RimMind.Personality.ShapingAction.Reinforce".Translate(),
-                        "suppress" => "RimMind.Personality.ShapingAction.Suppress".Translate(),
-                        _ => "RimMind.Personality.ShapingAction.Ignore".Translate()
-                    };
-                    sb.AppendLine($"- {r.label}: {actionLabel}");
-                }
-                return sb.ToString().TrimEnd();
-            });
+                        if (!Personality.PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
+
+                        string desc = (t as Thought_AIPersonality)?.aiDescription ?? t.def.label;
+                        float hours = t.DurationTicks / 2500f;
+                        sb.AppendLine("RimMind.Personality.Context.StateEntry".Translate(desc, $"{hours:F1}"));
+                        any = true;
+                    }
+                    return any ? new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) } : new List<ContextEntry>();
+                }, "RimMind.Personality");
+
+            ContextKeyRegistry.Register("personality_shaping", ContextLayer.L3_State, 0.15f,
+                pawnObj =>
+                {
+                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    var pawn = pawnObj as Pawn;
+                    if (pawn == null) return new List<ContextEntry>();
+                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                    if (profile?.playerShapingHistory == null || profile.playerShapingHistory.Count == 0)
+                        return new List<ContextEntry>();
+
+                    int maxCount = Settings?.shapingHistoryMaxCount ?? 20;
+                    var recent = profile.playerShapingHistory.Skip(System.Math.Max(0, profile.playerShapingHistory.Count - maxCount)).ToList();
+                    var sb = new System.Text.StringBuilder("RimMind.Personality.Context.ShapingHistoryHeader".Translate());
+                    foreach (var r in recent)
+                    {
+                        string actionLabel = r.action switch
+                        {
+                            "reinforce" => "RimMind.Personality.ShapingAction.Reinforce".Translate(),
+                            "suppress" => "RimMind.Personality.ShapingAction.Suppress".Translate(),
+                            _ => "RimMind.Personality.ShapingAction.Ignore".Translate()
+                        };
+                        sb.AppendLine($"- {r.label}: {actionLabel}");
+                    }
+                    return new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) };
+                }, "RimMind.Personality");
+
+            var personalityTaskInstruction = TaskInstructionBuilder.Build("RimMind.Personality.Prompt.TaskInstruction", null,
+                "Role", "Goal", "Process", "Constraint", "Example", "Output", "Fallback",
+                "EvalInstruction", "JsonFormatDirect", "LabelHint", "DescHint",
+                "NarrativeHint", "DurationHint", "DiversityHint", "TriggerReason");
+
+            ContextKeyRegistry.Register("personality_task", ContextLayer.L0_Static, 0.95f,
+                pawnObj =>
+                {
+                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    return new List<ContextEntry> { new ContextEntry(personalityTaskInstruction) };
+                }, "RimMind.Personality");
         }
 
         public override string SettingsCategory() => "RimMind - Personality";
@@ -98,7 +142,7 @@ namespace RimMind.Personality
         internal static void DrawSettingsContent(UnityEngine.Rect inRect)
         {
             UnityEngine.Rect contentArea = SettingsUIHelper.SplitContentArea(inRect);
-            UnityEngine.Rect bottomBar  = SettingsUIHelper.SplitBottomBar(inRect);
+            UnityEngine.Rect bottomBar = SettingsUIHelper.SplitBottomBar(inRect);
 
             float contentH = EstimateHeight();
             UnityEngine.Rect viewRect = new UnityEngine.Rect(0f, 0f, contentArea.width - 16f, contentH);
@@ -123,11 +167,6 @@ namespace RimMind.Personality
                 "RimMind.Personality.Settings.DeathTrigger.Desc".Translate());
 
             SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Thought".Translate());
-            listing.Label("RimMind.Personality.Settings.ThoughtCountLabel".Translate($"{Settings.thoughtCountMu:F1}"));
-            GUI.color = UnityEngine.Color.gray;
-            listing.Label("  " + "RimMind.Personality.Settings.ThoughtCountLabel.Desc".Translate());
-            GUI.color = UnityEngine.Color.white;
-            Settings.thoughtCountMu = listing.Slider(Settings.thoughtCountMu, 0f, 3f);
 
             listing.Label("RimMind.Personality.Settings.ThoughtDuration".Translate());
             GUI.color = UnityEngine.Color.gray;
@@ -172,6 +211,36 @@ namespace RimMind.Personality
             GUI.color = UnityEngine.Color.white;
             Settings.shapingHistoryMaxCount = (int)listing.Slider(Settings.shapingHistoryMaxCount, 10f, 200f);
 
+            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Timing".Translate());
+
+            listing.Label("RimMind.Personality.Settings.DailyInterval".Translate($"{Settings.dailyIntervalTicks / 2500f:F1}"));
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.DailyInterval.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
+            Settings.dailyIntervalTicks = (int)listing.Slider(Settings.dailyIntervalTicks, 12000f, 120000f);
+            Settings.dailyIntervalTicks = (Settings.dailyIntervalTicks / 3000) * 3000;
+
+            listing.Label("RimMind.Personality.Settings.JitterRange".Translate($"{Settings.jitterRangeTicks / 2500f:F1}"));
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.JitterRange.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
+            Settings.jitterRangeTicks = (int)listing.Slider(Settings.jitterRangeTicks, 0f, 12000f);
+            Settings.jitterRangeTicks = (Settings.jitterRangeTicks / 600) * 600;
+
+            listing.Label("RimMind.Personality.Settings.EventCooldown".Translate($"{Settings.eventCooldownTicks / 2500f:F1}"));
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.EventCooldown.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
+            Settings.eventCooldownTicks = (int)listing.Slider(Settings.eventCooldownTicks, 600f, 6000f);
+            Settings.eventCooldownTicks = (Settings.eventCooldownTicks / 300) * 300;
+
+            listing.Label("RimMind.Personality.Settings.RequestTimeout".Translate($"{Settings.requestTimeoutTicks / 2500f:F1}"));
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.RequestTimeout.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
+            Settings.requestTimeoutTicks = (int)listing.Slider(Settings.requestTimeoutTicks, 12000f, 120000f);
+            Settings.requestTimeoutTicks = (Settings.requestTimeoutTicks / 3000) * 3000;
+
             listing.End();
             Widgets.EndScrollView();
 
@@ -185,12 +254,15 @@ namespace RimMind.Personality
                 Settings.enableSkillTrigger = true;
                 Settings.enableIncidentTrigger = true;
                 Settings.enableDeathTrigger = true;
-                Settings.thoughtCountMu = 1.0f;
                 Settings.thoughtDurationHours = 24f;
                 Settings.durationMode = ThoughtDurationMode.AIDecides;
                 Settings.requestExpireTicks = 30000;
                 Settings.enableShapingVote = true;
                 Settings.shapingHistoryMaxCount = 20;
+                Settings.dailyIntervalTicks = 60000;
+                Settings.jitterRangeTicks = 3000;
+                Settings.eventCooldownTicks = 1200;
+                Settings.requestTimeoutTicks = 60000;
             });
 
             Settings.Write();
@@ -209,6 +281,7 @@ namespace RimMind.Personality
                 h += 24f;
             h += 24f + 24f * 2;
             h += 24f + 24f + 32f;
+            h += 24f + (24f + 24f + 32f) * 4;
             return h + 40f;
         }
     }

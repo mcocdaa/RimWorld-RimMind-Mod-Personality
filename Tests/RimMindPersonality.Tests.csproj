@@ -20,9 +20,7 @@
   <ItemGroup>
     <Compile Include="../Source/Personality/MoodOffsetCalculator.cs" />
     <Compile Include="../Source/Personality/PersonalityResultDto.cs" />
-    <Compile Include="../Source/Personality/EvaluationInstructionHelper.cs" />
-    <!-- JsonTagExtractor 来自 RimMind-Core -->
-    <Compile Include="../../RimMind-Core/Source/Core/JsonTagExtractor.cs" />
+    <Compile Include="../../RimMind-Core/Source/Application/Features/Json/JsonTagExtractor.cs" />
   </ItemGroup>
 
 </Project>
